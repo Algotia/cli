@@ -1,5 +1,6 @@
 import { convertDateToTimestamp } from "../utils/index";
 import backfill from "./commands/backfill";
+import listBackfills from "./commands/list-backfills";
 import { program } from "commander";
 
 const pInt = (str: string) => parseInt(str);
@@ -12,7 +13,9 @@ export default bootData => {
 
   program
     .option("-v, --verbose", "verbose output")
-    .option("-c, --config <config>")
+    .option("-c, --config <config>");
+
+  program
     .command("backfill")
     .description("backfill historical data")
     .requiredOption(
@@ -66,6 +69,13 @@ export default bootData => {
       };
 
       await backfill(exchange, opts);
+    });
+
+  program
+    .command("list-backfills")
+    .description("list saved backfills")
+    .action(async () => {
+      await listBackfills();
     });
 
   program.parse(process.argv);

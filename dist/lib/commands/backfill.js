@@ -75,15 +75,13 @@ exports.default = (exchange, opts) => __awaiter(void 0, void 0, void 0, function
         yield client.connect();
         const db = client.db(dbName);
         const backfillCollection = db.collection("backfill");
+        const docCount = yield backfillCollection.countDocuments();
         let docName;
         if (name) {
             docName = name;
         }
         else {
-            const format = (time) => new Date(time).toLocaleString().replace(",", "");
-            const startDate = format(since);
-            const endDate = format(until);
-            docName = `${startDate} --> ${endDate} ${pair} ${period}`;
+            docName = `backfill-${docCount + 1}`;
         }
         yield backfillCollection.insertOne({
             name: docName,

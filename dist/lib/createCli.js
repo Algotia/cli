@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("../utils/index");
 const backfill_1 = __importDefault(require("./commands/backfill"));
+const list_backfills_1 = __importDefault(require("./commands/list-backfills"));
 const commander_1 = require("commander");
 const pInt = (str) => parseInt(str);
 const pDate = (str) => index_1.convertDateToTimestamp(str);
@@ -23,7 +24,8 @@ exports.default = bootData => {
     commander_1.program.version("0.0.1");
     commander_1.program
         .option("-v, --verbose", "verbose output")
-        .option("-c, --config <config>")
+        .option("-c, --config <config>");
+    commander_1.program
         .command("backfill")
         .description("backfill historical data")
         .requiredOption("-s, --since <since>", "Unix timestamp (ms) of time to retrieve records from", pDate)
@@ -43,6 +45,12 @@ exports.default = bootData => {
             name: collectionName
         };
         yield backfill_1.default(exchange, opts);
+    }));
+    commander_1.program
+        .command("list-backfills")
+        .description("list saved backfills")
+        .action(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield list_backfills_1.default();
     }));
     commander_1.program.parse(process.argv);
 };

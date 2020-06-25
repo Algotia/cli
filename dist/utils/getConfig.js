@@ -9,6 +9,7 @@ const find_1 = __importDefault(require("find"));
 const bail_1 = __importDefault(require("../utils/bail"));
 const fancy_log_1 = __importDefault(require("fancy-log"));
 const yargs_parser_1 = __importDefault(require("yargs-parser"));
+const chalk_1 = __importDefault(require("chalk"));
 function getConfig() {
     let config, verbose;
     const argv = yargs_parser_1.default(process.argv);
@@ -17,11 +18,10 @@ function getConfig() {
     if (argv["v"] || argv["verbose"])
         verbose = argv["v"] || argv["verbose"];
     const paths = find_1.default.fileSync(/config.yaml/g, `${__dirname}/`);
-    console.log(config);
-    console.log(argv);
     if (!config) {
         if (paths.length === 0) {
-            bail_1.default("Error: no config files detected.");
+            fancy_log_1.default.warn(`${chalk_1.default.bold.yellow("WARNING")}: no config files detected, falling back to default config.`);
+            fancy_log_1.default.warn(`Only ${chalk_1.default.bold.yellow("Public")} API methods will be available.`);
         }
         else if (paths.length > 1) {
             bail_1.default("Error: multiple config files named config.yaml detected");
@@ -36,8 +36,22 @@ function getConfig() {
     }
     if (verbose)
         fancy_log_1.default(`Config file detected at ${configFile}`);
-    const configRaw = fs_1.default.readFileSync(configFile, "utf8");
-    const userConfig = yaml_1.default.parse(configRaw);
+    let userConfig;
+    if (configFile) {
+        const configRaw = fs_1.default.readFileSync(configFile, "utf8");
+        userConfig = yaml_1.default.parse(configRaw);
+    }
+    else {
+        const defaultConfig = {
+            exchange: {
+                exchangeId: "bitfinex",
+                apiKey: "beatsValidation",
+                apiSecret: "thisToo",
+                timeout: 3000
+            }
+        };
+        userConfig = defaultConfig;
+    }
     return userConfig;
 }
 exports.default = getConfig;
