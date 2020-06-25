@@ -8,15 +8,24 @@ const yaml_1 = __importDefault(require("yaml"));
 const find_1 = __importDefault(require("find"));
 const bail_1 = __importDefault(require("../utils/bail"));
 const fancy_log_1 = __importDefault(require("fancy-log"));
-const commander_1 = require("commander");
+const yargs_parser_1 = __importDefault(require("yargs-parser"));
 function getConfig() {
-    const { verbose, config } = commander_1.program;
-    const paths = find_1.default.fileSync(/config.yaml/g, `${process.cwd()}/`);
-    if (paths.length === 0) {
-        bail_1.default("Error: no config files detected.");
-    }
-    else if (paths.length > 1) {
-        bail_1.default("Error: multiple config files named config.yaml detected");
+    let config, verbose;
+    const argv = yargs_parser_1.default(process.argv);
+    if (argv["c"] || argv["config"])
+        config = argv["c"] || argv["config"];
+    if (argv["v"] || argv["verbose"])
+        verbose = argv["v"] || argv["verbose"];
+    const paths = find_1.default.fileSync(/config.yaml/g, `${__dirname}/`);
+    console.log(config);
+    console.log(argv);
+    if (!config) {
+        if (paths.length === 0) {
+            bail_1.default("Error: no config files detected.");
+        }
+        else if (paths.length > 1) {
+            bail_1.default("Error: multiple config files named config.yaml detected");
+        }
     }
     let configFile;
     if (config) {
