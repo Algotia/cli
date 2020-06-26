@@ -1,71 +1,38 @@
-import fs from "fs";
-import YAML from "yaml";
-import find from "find";
 import bail from "../utils/bail";
-import log from "fancy-log";
 import parseArgs from "yargs-parser";
 import chalk from "chalk";
+import os from "os";
+import path from "path";
 
-function getConfig() {
-  let configFlag: string;
-  let verboseFlag: boolean;
-  let configFile: string;
+import log from "../utils/logs";
 
-  let config; //return value
+process.env["NODE_CONFIG_DIR"] = path.join(os.homedir(), "/.config/algotia/");
+import config from "config";
 
-  const argv = parseArgs(process.argv);
+export default (options) => {
+	const configSourceArr = config.util.getConfigSources();
 
-  // First checks for explicitly passed configuration files
-  // TODO: I dont like that we need to use yargs parser, maybe way to integrate
-  // with commander
-  if (argv["c"] || argv["config"]) configFlag = argv["c"] || argv["config"];
-  if (argv["v"] || argv["verbose"]) verboseFlag = argv["v"] || argv["verbose"];
+	const configDefaults = {
+		exchange: {
+			exchangeId: "bitfinex",
+			apiKey: "beats string validation",
+			apiSecret: "enter real api keys",
+			timeout: 3000
+		}
+	};
 
-  if (configFlag) {
-    log.info(`Using configuration file ${configFlag}}`);
-    configFile = configFlag;
-  } else {
-    // If no explicit config, try to find one in the current directory
-    let paths = find.fileSync(/config.yaml/g, __dirname);
-    console.log("paths ", paths);
-    if (paths.length === 1) {
-      // config found
-      configFile = paths[0];
-      log(`Config file detected at ${configFile}`);
-    } else if (paths.length > 1) {
-      // bails if there are multiple config files detected
-      bail("Error: multiple config files named config.yaml detected");
-    }
-  }
+	if (configSourceArr.length) {
+		const formatPath = (path) => path.replace(os.homedir(), "~");
+		const configPath = formatPath(configSourceArr[0].name);
 
-  if (configFile) {
-    // If a config.yaml file was passed or found, parse it and set config var
-    const configRaw = fs.readFileSync(configFile, "utf8");
-    return YAML.parse(configRaw);
-  } else {
-    // If no config explicitly passed or found, fall back to default config --
-    // Public methods only
+		if (options.verbose)
+			log.info(`Config detected -- using ${chalk.underline.bold(configPath)}`);
 
-    log.warn(
-      `${chalk.bold.yellow(
-        "WARNING"
-      )}: no config files detected, falling back to default config.`
-    );
-    log.warn(
-      `Only ${chalk.bold.yellow("Public")} API methods will be available.`
-    );
+		const userConfig = configSourceArr[0].parsed;
+		const newConf = config.util.extendDeep(configDefaults, userConfig);
 
-    return {
-      exchange: {
-        exchangeId: "bitfinex",
-        apiKey: "beatsValidation",
-        apiSecret: "thisToo",
-        timeout: 3000
-      }
-    };
-  }
-
-  return config;
-}
-
-export default getConfig;
+		return newConf;
+	} else {
+		console.log("config doesnt exist");
+	}
+};
