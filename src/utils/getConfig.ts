@@ -41,18 +41,10 @@ function getConfig() {
   if (configFile) {
     // If a config.yaml file was passed or found, parse it and set config var
     const configRaw = fs.readFileSync(configFile, "utf8");
-    config = YAML.parse(configRaw);
+    return YAML.parse(configRaw);
   } else {
     // If no config explicitly passed or found, fall back to default config --
     // Public methods only
-    config = {
-      exchange: {
-        exchangeId: "bitfinex",
-        apiKey: "beatsValidation",
-        apiSecret: "thisToo",
-        timeout: 3000
-      }
-    };
 
     log.warn(
       `${chalk.bold.yellow(
@@ -62,6 +54,15 @@ function getConfig() {
     log.warn(
       `Only ${chalk.bold.yellow("Public")} API methods will be available.`
     );
+
+    return {
+      exchange: {
+        exchangeId: "bitfinex",
+        apiKey: "beatsValidation",
+        apiSecret: "thisToo",
+        timeout: 3000
+      }
+    };
   }
 
   return config;
