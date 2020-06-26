@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/Algotia/cli#readme",
   "dependencies": {
-    "@algotia/core": "0.0.1",
+    "@algotia/core": "0.0.2-6",
     "ansi-gray": "^0.1.1",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",

@@ -7,47 +7,45 @@ import parseArgs from "yargs-parser";
 import chalk from "chalk";
 
 function getConfig() {
-  let config: string;
-  let verbose: boolean;
-  let paths: string[];
+  let configFlag: string;
+  let verboseFlag: boolean;
+  let configFile: string;
+
+  let config; //return value
 
   const argv = parseArgs(process.argv);
 
-  if (argv["c"] || argv["config"]) config = argv["c"] || argv["config"];
-  if (argv["v"] || argv["verbose"]) verbose = argv["v"] || argv["verbose"];
+  // First checks for explicitly passed configuration files
+  // TODO: I dont like that we need to use yargs parser, maybe way to integrate
+  // with commander
+  if (argv["c"] || argv["config"]) configFlag = argv["c"] || argv["config"];
+  if (argv["v"] || argv["verbose"]) verboseFlag = argv["v"] || argv["verbose"];
 
-  if (!config) {
-    paths = find.files(/config.yaml/g, `${__dirname}/`);
-    if (paths.length === 0) {
-      log.warn(
-        `${chalk.bold.yellow(
-          "WARNING"
-        )}: no config files detected, falling back to default config.`
-      );
-      log.warn(
-        `Only ${chalk.bold.yellow("Public")} API methods will be available.`
-      );
+  if (configFlag) {
+    log.info(`Using configuration file ${configFlag}}`);
+    configFile = configFlag;
+  } else {
+    // If no explicit config, try to find one in the current directory
+    let paths = find.fileSync(/config.yaml/g, __dirname);
+    console.log("paths ", paths);
+    if (paths.length === 1) {
+      // config found
+      configFile = paths[0];
+      log(`Config file detected at ${configFile}`);
     } else if (paths.length > 1) {
+      // bails if there are multiple config files detected
       bail("Error: multiple config files named config.yaml detected");
     }
   }
 
-  let configFile: string;
-  let userConfig;
-
-  if (config) {
-    configFile = config;
-  } else if (paths.length === 1) {
-    configFile = paths[0];
-  }
-
-  if (verbose) log(`Config file detected at ${configFile}`);
-
   if (configFile) {
+    // If a config.yaml file was passed or found, parse it and set config var
     const configRaw = fs.readFileSync(configFile, "utf8");
-    userConfig = YAML.parse(configRaw);
+    config = YAML.parse(configRaw);
   } else {
-    const defaultConfig = {
+    // If no config explicitly passed or found, fall back to default config --
+    // Public methods only
+    config = {
       exchange: {
         exchangeId: "bitfinex",
         apiKey: "beatsValidation",
@@ -56,10 +54,17 @@ function getConfig() {
       }
     };
 
-    userConfig = defaultConfig;
+    log.warn(
+      `${chalk.bold.yellow(
+        "WARNING"
+      )}: no config files detected, falling back to default config.`
+    );
+    log.warn(
+      `Only ${chalk.bold.yellow("Public")} API methods will be available.`
+    );
   }
 
-  return userConfig;
+  return config;
 }
 
 export default getConfig;

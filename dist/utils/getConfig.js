@@ -11,38 +11,45 @@ const fancy_log_1 = __importDefault(require("fancy-log"));
 const yargs_parser_1 = __importDefault(require("yargs-parser"));
 const chalk_1 = __importDefault(require("chalk"));
 function getConfig() {
-    let config, verbose;
+    let configFlag;
+    let verboseFlag;
+    let configFile;
+    let config; //return value
     const argv = yargs_parser_1.default(process.argv);
+    // First checks for explicitly passed configuration files
+    // TODO: I dont like that we need to use yargs parser, maybe way to integrate
+    // with commander
     if (argv["c"] || argv["config"])
-        config = argv["c"] || argv["config"];
+        configFlag = argv["c"] || argv["config"];
     if (argv["v"] || argv["verbose"])
-        verbose = argv["v"] || argv["verbose"];
-    const paths = find_1.default.fileSync(/config.yaml/g, `${__dirname}/`);
-    if (!config) {
-        if (paths.length === 0) {
-            fancy_log_1.default.warn(`${chalk_1.default.bold.yellow("WARNING")}: no config files detected, falling back to default config.`);
-            fancy_log_1.default.warn(`Only ${chalk_1.default.bold.yellow("Public")} API methods will be available.`);
+        verboseFlag = argv["v"] || argv["verbose"];
+    if (configFlag) {
+        fancy_log_1.default.info(`Using configuration file ${configFlag}}`);
+        configFile = configFlag;
+    }
+    else {
+        // If no explicit config, try to find one in the current directory
+        let paths = find_1.default.fileSync(/config.yaml/g, __dirname);
+        console.log("paths ", paths);
+        if (paths.length === 1) {
+            // config found
+            configFile = paths[0];
+            fancy_log_1.default(`Config file detected at ${configFile}`);
         }
         else if (paths.length > 1) {
+            // bails if there are multiple config files detected
             bail_1.default("Error: multiple config files named config.yaml detected");
         }
     }
-    let configFile;
-    if (config) {
-        configFile = config;
-    }
-    else {
-        configFile = paths[0];
-    }
-    if (verbose)
-        fancy_log_1.default(`Config file detected at ${configFile}`);
-    let userConfig;
     if (configFile) {
+        // If a config.yaml file was passed or found, parse it and set config var
         const configRaw = fs_1.default.readFileSync(configFile, "utf8");
-        userConfig = yaml_1.default.parse(configRaw);
+        config = yaml_1.default.parse(configRaw);
     }
     else {
-        const defaultConfig = {
+        // If no config explicitly passed or found, fall back to default config --
+        // Public methods only
+        config = {
             exchange: {
                 exchangeId: "bitfinex",
                 apiKey: "beatsValidation",
@@ -50,8 +57,9 @@ function getConfig() {
                 timeout: 3000
             }
         };
-        userConfig = defaultConfig;
+        fancy_log_1.default.warn(`${chalk_1.default.bold.yellow("WARNING")}: no config files detected, falling back to default config.`);
+        fancy_log_1.default.warn(`Only ${chalk_1.default.bold.yellow("Public")} API methods will be available.`);
     }
-    return userConfig;
+    return config;
 }
 exports.default = getConfig;
