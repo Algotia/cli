@@ -3,7 +3,7 @@
   "version": "0.0.2-8",
   "description": "",
   "bin": {
-    "algotia": "./algotia-cli.sh"
+    "algotia": "./algotia-cli.js"
   },
   "scripts": {
     "build": "npx gulp build",
