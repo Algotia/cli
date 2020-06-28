@@ -12,7 +12,9 @@ import createCli from "./lib/createCli";
 		const config = getConfig({
 			verbose: program.verbose
 		});
-		const bootData = await boot(config);
+		const bootData = await boot(config, {
+			verbose: program.verbose
+		});
 		createCli(bootData);
 	} catch (err) {
 		console.log(err);

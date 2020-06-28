@@ -24,7 +24,9 @@ const createCli_1 = __importDefault(require("./lib/createCli"));
         const config = index_1.getConfig({
             verbose: commander_1.default.verbose
         });
-        const bootData = yield core_1.boot(config);
+        const bootData = yield core_1.boot(config, {
+            verbose: commander_1.default.verbose
+        });
         createCli_1.default(bootData);
     }
     catch (err) {

@@ -1,6 +1,6 @@
 import { convertDateToTimestamp } from "../utils/index";
-import backfill from "./commands/backfill";
-import listBackfills from "./commands/list-backfills";
+import backfillCommand from "./commands/backfill";
+import backfillsCommand from "./commands/backfills";
 import { program } from "commander";
 
 const pInt = (str: string) => parseInt(str);
@@ -64,14 +64,26 @@ export default (bootData) => {
 				name: collectionName
 			};
 
-			await backfill(exchange, opts);
+			await backfillCommand(exchange, opts);
 		});
 
 	program
-		.command("list-backfills")
-		.description("list saved backfills")
-		.action(async () => {
-			await listBackfills();
+		.command("backfills")
+		.description("Read, update, and delete backfill documents")
+		.command("list [documentName]")
+		.description(
+			"Print backfill document(s), when called with no arguments, will print all documents"
+		)
+		.option("-p, --pretty", "Print output in a pretty table", false)
+		// BUG -- Not sure why 'pretty' is the Program object, will fix this later
+		.action(async (documentName, options) => {
+			console.log(options.parent.parent.options);
+			const { pretty } = options;
+			if (documentName) {
+				await backfillsCommand.listOne(documentName, pretty);
+			} else {
+				await backfillsCommand.listAll(pretty);
+			}
 		});
 
 	program.parse(process.argv);

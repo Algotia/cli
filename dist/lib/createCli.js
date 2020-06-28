@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("../utils/index");
 const backfill_1 = __importDefault(require("./commands/backfill"));
-const list_backfills_1 = __importDefault(require("./commands/list-backfills"));
+const backfills_1 = __importDefault(require("./commands/backfills"));
 const commander_1 = require("commander");
 const pInt = (str) => parseInt(str);
 const pDate = (str) => index_1.convertDateToTimestamp(str);
@@ -44,10 +44,21 @@ exports.default = (bootData) => {
         yield backfill_1.default(exchange, opts);
     }));
     commander_1.program
-        .command("list-backfills")
-        .description("list saved backfills")
-        .action(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield list_backfills_1.default();
+        .command("backfills")
+        .description("Read, update, and delete backfill documents")
+        .command("list [documentName]")
+        .description("Print backfill document(s), when called with no arguments, will print all documents")
+        .option("-p, --pretty", "Print output in a pretty table", false)
+        // BUG -- Not sure why 'pretty' is the Program object, will fix this later
+        .action((documentName, options) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log(options.parent.parent.options);
+        const { pretty } = options;
+        if (documentName) {
+            yield backfills_1.default.listOne(documentName, pretty);
+        }
+        else {
+            yield backfills_1.default.listAll(pretty);
+        }
     }));
     commander_1.program.parse(process.argv);
 };
