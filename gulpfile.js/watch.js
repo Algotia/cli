@@ -27,18 +27,29 @@ module.exports = function watchTS(cb) {
 
 			info(`Compiling ${inPath} --> ${outPath}`);
 
+			let transpileError = false;
 			src(inPath)
 				.pipe(tsProject(ts.reporter.longReporter()))
-				.pipe(dest(outPath));
-
-			success("Transpiled successfully");
+				.on("error", (err) => {
+					transpileError = true;
+					console.log(err);
+					error("Error transpiling TypeScript");
+				})
+				.pipe(dest(outPath))
+				.on("end", (obj) => {
+					if (!transpileError) success("Transpiled TypeScript successfully");
+				});
 		} catch (error) {
 			console.log("ERRORED OUT --- ");
 		}
 	});
+
 	watcher.on("ready", () => {
-		transpile(() => {});
+		transpile(() => {
+			success("Transpiled TypeScript successfully");
+		});
 	});
+
 	watcher.on("add", function (inPath) {
 		info(`File ${inPath} was added`);
 

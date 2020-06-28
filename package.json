@@ -6,6 +6,7 @@
     "algotia": "./algotia-cli.js"
   },
   "scripts": {
+    "test": "jest",
     "build": "npx gulp build",
     "dev": "npx gulp watch"
   },
@@ -21,6 +22,7 @@
   "homepage": "https://github.com/Algotia/cli#readme",
   "dependencies": {
     "@algotia/core": "0.0.2-8",
+    "@types/jest": "^26.0.3",
     "ansi-gray": "^0.1.1",
     "chalk": "^4.1.0",
     "commander": "^5.1.0",
@@ -28,9 +30,11 @@
     "date-fns": "^2.14.0",
     "fancy-log": "^1.3.3",
     "find": "^0.3.0",
+    "jest": "^26.1.0",
     "js-yaml": "^3.14.0",
     "mongodb": "^3.5.9",
     "time-stamp": "^2.2.0",
+    "ts-jest": "^26.1.1",
     "typescript": "^3.9.5",
     "yaml": "^1.10.0",
     "yargs-parser": "^18.1.3"
