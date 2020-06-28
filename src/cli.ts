@@ -3,7 +3,7 @@ import { getConfig } from "./utils/index";
 import program from "commander";
 import createCli from "./lib/createCli";
 
-(sync () => {
+(async () => {
 	try {
 		// Register the initial options
 		program
