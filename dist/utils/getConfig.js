@@ -29,6 +29,7 @@ exports.default = (options) => {
         return newConf;
     }
     else {
-        console.log("config doesnt exist");
+        logs_1.default.warn("Using default configuration. Please create your own configuration file at ");
+        return configDefaults;
     }
 };

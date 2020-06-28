@@ -18,15 +18,17 @@ const commander_1 = __importDefault(require("commander"));
 const createCli_1 = __importDefault(require("./lib/createCli"));
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        // Register the initial options
         commander_1.default
             .option("-v, --verbose", "verbose output")
             .option("-c, --config <config>");
         const config = index_1.getConfig({
             verbose: commander_1.default.verbose
         });
-        const bootData = yield core_1.boot(config, {
+        const bootOptions = {
             verbose: commander_1.default.verbose
-        });
+        };
+        const bootData = yield core_1.boot(config, bootOptions);
         createCli_1.default(bootData);
     }
     catch (err) {

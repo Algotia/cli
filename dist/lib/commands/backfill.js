@@ -25,7 +25,7 @@ const reshape = (arr) => arr.map((ohlcv) => ({
     high: ohlcv[2],
     low: ohlcv[3],
     close: ohlcv[4],
-    volume: ohlcv[5],
+    volume: ohlcv[5]
 }));
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); // This is a sync function that WILL block the main thread, might want to do something else instead
 exports.default = (exchange, opts) => __awaiter(void 0, void 0, void 0, function* () {
@@ -41,11 +41,11 @@ exports.default = (exchange, opts) => __awaiter(void 0, void 0, void 0, function
         const unitsMs = {
             minute: 60000,
             hour: 3600000,
-            day: 86400000,
+            day: 86400000
         };
         const msDiff = until - since;
-        const { unit, ammount } = index_1.convertTimeFrame(period);
-        const periodMs = unitsMs[unit] * ammount;
+        const { unit, amount } = index_1.convertTimeFrame(period);
+        const periodMs = unitsMs[unit] * amount;
         let recrodsToFetch = Math.round(msDiff / periodMs);
         fancy_log_1.default.info(`Records to fetch ${recrodsToFetch}`);
         let allTrades = [];
@@ -69,7 +69,7 @@ exports.default = (exchange, opts) => __awaiter(void 0, void 0, void 0, function
         const dbUrl = "mongodb://localhost:27017";
         const dbName = "algotia";
         const dbOptions = {
-            useUnifiedTopology: true,
+            useUnifiedTopology: true
         };
         const client = new mongodb_1.MongoClient(dbUrl, dbOptions);
         yield client.connect();
@@ -89,7 +89,7 @@ exports.default = (exchange, opts) => __awaiter(void 0, void 0, void 0, function
             pair,
             since,
             until,
-            records: allTrades,
+            records: allTrades
         });
         fancy_log_1.default(`Wrote ${allTrades.length} records to ${docName}`);
         client.close();

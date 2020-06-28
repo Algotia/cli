@@ -2,14 +2,16 @@ import { convertDateToTimestamp } from "../utils/index";
 import backfillCommand from "./commands/backfill";
 import backfillsCommand from "./commands/backfills";
 import { program } from "commander";
+const packageJson = require("../../package.json");
 
+// argument parsers
 const pInt = (str: string) => parseInt(str);
 const pDate = (str: string) => convertDateToTimestamp(str);
 
 // should create an interface for this
 export default (bootData) => {
 	const { exchange } = bootData;
-	program.version("0.0.1");
+	program.version(packageJson.version);
 
 	program
 		.command("backfill")
@@ -25,6 +27,7 @@ export default (bootData) => {
 			"-u, --until <until>",
 			"Unix timestamp (ms) of time to retrieve records to",
 			pDate,
+			// default argument is server time in MS
 			exchange.milliseconds()
 		)
 		.option(
@@ -67,17 +70,16 @@ export default (bootData) => {
 			await backfillCommand(exchange, opts);
 		});
 
+	// Output of algotia -h should be backfills [command] but is not.
 	program
-		.command("backfills")
+		.command("backfills <command>")
 		.description("Read, update, and delete backfill documents")
 		.command("list [documentName]")
 		.description(
-			"Print backfill document(s), when called with no arguments, will print all documents"
+			"Print backfill document(s), when called with no arguments, will print all documents (metadata only)."
 		)
-		.option("-p, --pretty", "Print output in a pretty table", false)
-		// BUG -- Not sure why 'pretty' is the Program object, will fix this later
+		.option("-p, --pretty", "Print (only) metadata in a pretty table", false)
 		.action(async (documentName, options) => {
-			console.log(options.parent.parent.options);
 			const { pretty } = options;
 			if (documentName) {
 				await backfillsCommand.listOne(documentName, pretty);

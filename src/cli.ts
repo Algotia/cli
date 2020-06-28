@@ -5,6 +5,7 @@ import createCli from "./lib/createCli";
 
 (async () => {
 	try {
+		// Register the initial options
 		program
 			.option("-v, --verbose", "verbose output")
 			.option("-c, --config <config>");
@@ -12,9 +13,12 @@ import createCli from "./lib/createCli";
 		const config = getConfig({
 			verbose: program.verbose
 		});
-		const bootData = await boot(config, {
+
+		const bootOptions = {
 			verbose: program.verbose
-		});
+		};
+
+		const bootData = await boot(config, bootOptions);
 		createCli(bootData);
 	} catch (err) {
 		console.log(err);

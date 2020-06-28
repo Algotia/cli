@@ -16,19 +16,23 @@ const index_1 = require("../utils/index");
 const backfill_1 = __importDefault(require("./commands/backfill"));
 const backfills_1 = __importDefault(require("./commands/backfills"));
 const commander_1 = require("commander");
+const packageJson = require("../../package.json");
+// argument parsers
 const pInt = (str) => parseInt(str);
 const pDate = (str) => index_1.convertDateToTimestamp(str);
 // should create an interface for this
 exports.default = (bootData) => {
     const { exchange } = bootData;
-    commander_1.program.version("0.0.1");
+    commander_1.program.version(packageJson.version);
     commander_1.program
         .command("backfill")
         .description("backfill historical data")
         .requiredOption("-s, --since <since>", "Unix timestamp (ms) of time to retrieve records from", pDate)
         .requiredOption("-p, --pair <pair>", "Pair to retrieve records for")
         .option("-P, --period <period>", "Timeframe to retrieve records for", "1m")
-        .option("-u, --until <until>", "Unix timestamp (ms) of time to retrieve records to", pDate, exchange.milliseconds())
+        .option("-u, --until <until>", "Unix timestamp (ms) of time to retrieve records to", pDate, 
+    // default argument is server time in MS
+    exchange.milliseconds())
         .option("-l, --limit <limit>", "Number of records to retrieve at one time", pInt, 10)
         .option("-n, --collection-name <collectionName>", "name for database refrence", undefined)
         .action((options) => __awaiter(void 0, void 0, void 0, function* () {
@@ -43,15 +47,14 @@ exports.default = (bootData) => {
         };
         yield backfill_1.default(exchange, opts);
     }));
+    // Output of algotia -h should be backfills [command] but is not.
     commander_1.program
-        .command("backfills")
+        .command("backfills <command>")
         .description("Read, update, and delete backfill documents")
         .command("list [documentName]")
-        .description("Print backfill document(s), when called with no arguments, will print all documents")
-        .option("-p, --pretty", "Print output in a pretty table", false)
-        // BUG -- Not sure why 'pretty' is the Program object, will fix this later
+        .description("Print backfill document(s), when called with no arguments, will print all documents (metadata only).")
+        .option("-p, --pretty", "Print (only) metadata in a pretty table", false)
         .action((documentName, options) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(options.parent.parent.options);
         const { pretty } = options;
         if (documentName) {
             yield backfills_1.default.listOne(documentName, pretty);

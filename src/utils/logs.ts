@@ -1,28 +1,25 @@
 import chalk from "chalk";
 import log from "fancy-log";
 
-function info(args) {
-	log(`${chalk.yellow.bold("INFO: ")} ${args}`);
-}
+const info = (text: any) => {
+	log(chalk.yellow.bold("INFO: "), ...text);
+};
 
-function error() {
-	log.error(chalk.red.bold("ERROR: "), arguments);
-}
+const error = (text: any) => {
+	log.error(chalk.red.bold("ERROR: "), ...text);
+};
 
-function warn() {
-	log.warn(chalk.yellow.bold("WARNING: "), arguments);
-}
+const warn = (text: any) => {
+	log.warn(chalk.yellow.bold("WARNING: "), ...text);
+};
 
-function success() {
-	log(chalk.green.bold("SUCCESS: "), arguments);
-}
+const success = (text: any) => {
+	log(chalk.green.bold("SUCCESS: "), ...text);
+};
 
-export default Object.assign(
-	{},
-	{
-		info,
-		error,
-		warn,
-		success,
-	}
-);
+export default {
+	info,
+	error,
+	warn,
+	success
+};

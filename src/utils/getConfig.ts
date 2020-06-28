@@ -33,6 +33,9 @@ export default (options) => {
 
 		return newConf;
 	} else {
-		console.log("config doesnt exist");
+		log.warn(
+			"Using default configuration. Please create your own configuration file at "
+		);
+		return configDefaults;
 	}
 };

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongodb_1 = require("mongodb");
+const fancy_log_1 = __importDefault(require("fancy-log"));
 const chalk_1 = __importDefault(require("chalk"));
 const index_1 = require("../../utils/index");
 const connect = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -32,6 +33,7 @@ const connect = () => __awaiter(void 0, void 0, void 0, function* () {
         index_1.bail(err);
     }
 });
+// Format metadata for console.table
 function BackfillRow(data) {
     const format = (num) => new Date(num).toLocaleString();
     const { name, period, pair, since, until } = data;
@@ -43,7 +45,6 @@ function BackfillRow(data) {
 }
 const listOne = (documentName, pretty) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(pretty);
         const { client, backfillCollection } = yield connect();
         const oneBackfill = yield backfillCollection
             .find({ name: documentName })
@@ -57,10 +58,10 @@ const listOne = (documentName, pretty) => __awaiter(void 0, void 0, void 0, func
             }
         }
         else {
-            console.log(`No backfill named ${documentName} saved. Run ${chalk_1.default.bold.underline("algotia backfills list")} to see saved documents.`);
+            fancy_log_1.default.error(`No backfill named ${documentName} saved. Run ${chalk_1.default.bold.underline("algotia backfills list")} to see saved documents.`);
         }
         yield client.close();
-        process.exit(0);
+        index_1.bail();
     }
     catch (err) {
         index_1.bail(err);
@@ -84,7 +85,7 @@ const listAll = (pretty) => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
         else {
-            console.log(`No backfills saved. Run ${chalk_1.default.bold.underline("algotia backfill -h")}`);
+            console.log(`No backfills saved. Run ${chalk_1.default.bold.underline("algotia backfill -h")} for help.`);
         }
         yield client.close();
         process.exit(0);

@@ -1,17 +1,15 @@
-const { src, pipe, dest} = require('gulp');
-const ts = require('gulp-typescript');
-const tsProject = ts.createProject('tsconfig.json');
-const fs = require('fs');
-const {error, info} = require('./logs');
+const { src, dest } = require("gulp");
+const ts = require("gulp-typescript");
+const tsProject = ts.createProject("tsconfig.json");
+const { info } = require("./logs");
 
-const outputPath = './dist';
-const inputPath = './src';
+const outputPath = "./dist";
+const inputPath = "./src";
 
-function transpile(){
-    info("Starting TypeScript compiler");
-    return src(`${inputPath}/**/*.ts`)
-        .pipe(tsProject())
-        .pipe(dest(outputPath));
-};
+function transpile(cb) {
+	info("Starting TypeScript compiler");
+	src(`${inputPath}/**/*.ts`).pipe(tsProject()).pipe(dest(outputPath));
+	cb();
+}
 
 module.exports = transpile;

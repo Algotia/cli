@@ -24,6 +24,7 @@ const connect = async () => {
 	}
 };
 
+// Format metadata for console.table
 function BackfillRow(data) {
 	const format = (num: number) => new Date(num).toLocaleString();
 	const { name, period, pair, since, until } = data;
@@ -36,7 +37,6 @@ function BackfillRow(data) {
 
 const listOne = async (documentName: string, pretty?: boolean) => {
 	try {
-		console.log(pretty);
 		const { client, backfillCollection } = await connect();
 		const oneBackfill = await backfillCollection
 			.find({ name: documentName })
@@ -49,14 +49,14 @@ const listOne = async (documentName: string, pretty?: boolean) => {
 				console.log(oneBackfill[0]);
 			}
 		} else {
-			console.log(
+			log.error(
 				`No backfill named ${documentName} saved. Run ${chalk.bold.underline(
 					"algotia backfills list"
 				)} to see saved documents.`
 			);
 		}
 		await client.close();
-		process.exit(0);
+		bail();
 	} catch (err) {
 		bail(err);
 	}
@@ -81,7 +81,9 @@ const listAll = async (pretty?: boolean) => {
 			}
 		} else {
 			console.log(
-				`No backfills saved. Run ${chalk.bold.underline("algotia backfill -h")}`
+				`No backfills saved. Run ${chalk.bold.underline(
+					"algotia backfill -h"
+				)} for help.`
 			);
 		}
 
