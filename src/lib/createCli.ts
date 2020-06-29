@@ -5,7 +5,7 @@ import { program } from "commander";
 const packageJson = require("../../package.json");
 
 // argument parsers
-const pInt = (str: string) => parseInt(str);
+const pInt = (str: string) => parseInt(str, 10);
 const pDate = (str: string) => convertDateToTimestamp(str);
 
 // should create an interface for this

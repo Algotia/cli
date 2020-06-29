@@ -8,7 +8,7 @@ enum Unit {
 }
 
 export default (timeframe: string): { unit: Unit; amount: number } => {
-	const amount: number = parseInt(timeframe.replace(/[^0-9\.]+/g, ""));
+	const amount: number = parseInt(timeframe.replace(/[^0-9\.]+/g, ""), 10);
 
 	let unit: Unit;
 

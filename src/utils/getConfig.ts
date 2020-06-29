@@ -6,7 +6,7 @@ import path from "path";
 
 import log from "../utils/logs";
 
-process.env["NODE_CONFIG_DIR"] = path.join(os.homedir(), "/.config/algotia/");
+process.env["NODE_CONFIG_DIR"] = path.join(os.homedir(), "/algotia/");
 import config from "config";
 
 export default (options) => {
