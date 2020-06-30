@@ -124,15 +124,16 @@ export default async (exchange, opts: Options) => {
 			docName = `backfill-${docCount + 1}`;
 		}
 
-		await backfillCollection.insertOne({
+		const toBeInserted = {
 			name: docName,
-			period,
-			pair,
-			since,
-			until,
+			period: period,
+			pair: pair,
+			since: since,
+			until: until,
 			records: allTrades
-		});
+		};
 
+		await backfillCollection.insertOne(toBeInserted);
 		log(`Wrote ${allTrades.length} records to ${docName}`);
 		client.close();
 		process.exit(0);
