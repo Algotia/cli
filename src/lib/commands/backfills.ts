@@ -33,7 +33,7 @@ const connect = async () => {
 // Format metadata for console.table
 function BackfillRow(data) {
 	function format(str: string) {
-		const num = parseInt(str);
+		const num = parseInt(str, 10);
 		return new Date(num).toLocaleString();
 	}
 	const { name, period, pair, since, until } = data;
