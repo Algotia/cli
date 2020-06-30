@@ -32,7 +32,8 @@ const connect = async () => {
 
 // Format metadata for console.table
 function BackfillRow(data) {
-	function format(num: number) {
+	function format(str: string) {
+		const num = parseInt(str);
 		return new Date(num).toLocaleString();
 	}
 	const { name, period, pair, since, until } = data;
@@ -49,7 +50,9 @@ const confirmDangerous = async (documentsAffected?: number) => {
 			{
 				type: "confirm",
 				name: "proceedDangerous",
-				message: `The following operation affects ${documentsAffected} documents and is destructive. Continue?`,
+				message: `The following operation affects ${documentsAffected} ${
+					documentsAffected > 1 ? "documents" : "document"
+				} and is destructive. Continue?`,
 				default: false
 			}
 		];
@@ -161,11 +164,13 @@ const deleteOne = async (documentName: string, options: DeleteOptions) => {
 		if (length) {
 			const proceed = await confirmDangerous(length);
 			if (proceed) {
-				await backfillCollection.drop();
+				await backfillCollection.deleteOne({ name: documentName });
 				success(`Deleted document ${documentName} from the database.`);
 			} else {
 				bail(`Bailed out of deleting document ${documentName}`);
 			}
+		} else {
+			bail(`No documents name ${documentName}.`);
 		}
 
 		await client.close();
