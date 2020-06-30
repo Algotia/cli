@@ -1,7 +1,9 @@
 import { convertDateToTimestamp } from "../utils/index";
 import backfillCommand from "./commands/backfill";
 import backfillsCommand from "./commands/backfills";
+import { ListOptions, DeleteOptions } from "../types/interfaces/commands";
 import { program } from "commander";
+import { bail } from "../utils/index";
 const packageJson = require("../../package.json");
 
 // argument parsers
@@ -42,49 +44,83 @@ export default (bootData) => {
 			undefined
 		)
 		.action(async (options) => {
-			const {
-				since,
-				pair,
-				period,
-				until,
-				limit,
-				collectionName
-			}: {
-				since: number;
-				pair: string;
-				period: string;
-				until: number;
-				limit: number;
-				collectionName: string;
-			} = options;
+			try {
+				const {
+					since,
+					pair,
+					period,
+					until,
+					limit,
+					collectionName
+				}: {
+					since: number;
+					pair: string;
+					period: string;
+					until: number;
+					limit: number;
+					collectionName: string;
+				} = options;
 
-			const opts = {
-				since,
-				pair,
-				period,
-				until,
-				recordLimit: limit,
-				name: collectionName
-			};
+				const opts = {
+					since,
+					pair,
+					period,
+					until,
+					recordLimit: limit,
+					name: collectionName
+				};
 
-			await backfillCommand(exchange, opts);
+				await backfillCommand(exchange, opts);
+			} catch (err) {
+				bail(err);
+			}
 		});
 
 	// Output of algotia -h should be backfills [command] but is not.
-	program
+	const backfill = program
 		.command("backfills <command>")
-		.description("Read, update, and delete backfill documents")
+		.description("Read, update, and delete backfill documents");
+
+	backfill
 		.command("list [documentName]")
 		.description(
 			"Print backfill document(s), when called with no arguments, will print all documents (metadata only)."
 		)
 		.option("-p, --pretty", "Print (only) metadata in a pretty table", false)
 		.action(async (documentName, options) => {
-			const { pretty } = options;
-			if (documentName) {
-				await backfillsCommand.listOne(documentName, pretty);
-			} else {
-				await backfillsCommand.listAll(pretty);
+			try {
+				const { pretty } = options;
+				const backfillsOptions: ListOptions = {
+					pretty
+				};
+				if (documentName) {
+					await backfillsCommand.listOne(documentName, backfillsOptions);
+				} else {
+					await backfillsCommand.listAll(backfillsOptions);
+				}
+			} catch (err) {
+				bail(err);
+			}
+		});
+
+	backfill
+		.command("delete [documentName]")
+		.description(
+			"Deletes document(s), if no name passed then deletes all documents."
+		)
+		.action(async (documentName, options) => {
+			try {
+				const { verbose } = options;
+				const deleteOptions: DeleteOptions = {
+					verbose
+				};
+				if (documentName) {
+					await backfillsCommand.deleteOne(documentName, deleteOptions);
+				} else {
+					await backfillsCommand.deleteAll(deleteOptions);
+				}
+			} catch (err) {
+				bail(err);
 			}
 		});
 
