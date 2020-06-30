@@ -2,6 +2,7 @@ import { MongoClient } from "mongodb";
 import log from "fancy-log";
 import chalk from "chalk";
 import { bail } from "../../utils/index";
+import { ListOptions } from "../../types/interfaces/commands";
 
 const connect = async () => {
 	try {
@@ -35,9 +36,10 @@ function BackfillRow(data) {
 	this["until (formatted)"] = format(until);
 }
 
-const listOne = async (documentName: string, pretty?: boolean) => {
+const listOne = async (documentName: string, options: ListOptions) => {
 	try {
 		const { client, backfillCollection } = await connect();
+		const { pretty, verbose } = options;
 		const oneBackfill = await backfillCollection
 			.find({ name: documentName })
 			.toArray();
@@ -62,8 +64,9 @@ const listOne = async (documentName: string, pretty?: boolean) => {
 	}
 };
 
-const listAll = async (pretty?: boolean) => {
+const listAll = async (options: ListOptions) => {
 	try {
+		const { pretty, verbose } = options;
 		const { client, backfillCollection } = await connect();
 		const allBackfills = backfillCollection.find({});
 		const backfillsArr = await allBackfills.toArray();
@@ -89,6 +92,16 @@ const listAll = async (pretty?: boolean) => {
 
 		await client.close();
 		process.exit(0);
+	} catch (err) {
+		bail(err);
+	}
+};
+
+const deleteAll = async (pretty?: boolean) => {
+	try {
+		const { client, backfillCollection } = await connect();
+
+		await backfillCollection.drop();
 	} catch (err) {
 		bail(err);
 	}

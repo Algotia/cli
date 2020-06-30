@@ -1,6 +1,7 @@
 import { convertDateToTimestamp } from "../utils/index";
 import backfillCommand from "./commands/backfill";
 import backfillsCommand from "./commands/backfills";
+import { ListOptions } from "../types/interfaces/commands";
 import { program } from "commander";
 const packageJson = require("../../package.json");
 
@@ -81,10 +82,13 @@ export default (bootData) => {
 		.option("-p, --pretty", "Print (only) metadata in a pretty table", false)
 		.action(async (documentName, options) => {
 			const { pretty } = options;
+			const backfillsOptions: ListOptions = {
+				pretty
+			};
 			if (documentName) {
-				await backfillsCommand.listOne(documentName, pretty);
+				await backfillsCommand.listOne(documentName, backfillsOptions);
 			} else {
-				await backfillsCommand.listAll(pretty);
+				await backfillsCommand.listAll(backfillsOptions);
 			}
 		});
 

@@ -6,6 +6,7 @@ import path from "path";
 
 import log from "../utils/logs";
 
+process.env["SUPPRESS_NO_CONFIG_WARNING"] = "true";
 process.env["NODE_CONFIG_DIR"] = path.join(os.homedir(), "/algotia/");
 import config from "config";
 
@@ -34,8 +35,11 @@ export default (options) => {
 
 		return newConf;
 	} else {
-		log.warn(
-			"Using default configuration. Please create your own configuration file at "
+		log.warn(`Using default configuration.`);
+		log.info(
+			`Please create your own configuration file at ${chalk.bold.underline(
+				process.env["NODE_CONFIG_DIR"] + "default.yaml"
+			)}`
 		);
 		return configDefaults;
 	}
