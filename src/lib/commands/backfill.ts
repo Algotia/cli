@@ -41,16 +41,16 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default async (exchange, opts: Options) => {
 	try {
-		// De structure mutable and immutable properties separately
-		const { pair, until, period, name } = opts;
+		const { pair, until, period, name, since, recordLimit } = opts;
 
-		let { since, recordLimit } = opts;
+		let sinceCursor = since;
+		let recordLimitCursor = recordLimit;
 
 		const allowedTimeframes = Object.keys(exchange.timeframes);
 		if (!allowedTimeframes.includes(period))
 			throw new Error("Period does not exist as an exchange timeframe");
 
-		if (since > until)
+		if (sinceCursor > until)
 			throw new Error(
 				"Invalid date: parameter since cannot be less than until"
 			);
@@ -73,18 +73,18 @@ export default async (exchange, opts: Options) => {
 
 		await sleep(500);
 
-		while (since < until) {
-			if (recordLimit > recrodsToFetch) recordLimit = recrodsToFetch;
+		while (recrodsToFetch) {
+			if (recordLimit > recrodsToFetch) recordLimitCursor = recrodsToFetch;
 
 			const rawOHLCV = await exchange.fetchOHLCV(
 				pair,
 				period,
 				since,
-				recordLimit
+				recordLimitCursor
 			);
 			const ohlcv = reshape(rawOHLCV);
 
-			since = ohlcv[ohlcv.length - 1].timestamp + periodMs;
+			sinceCursor = ohlcv[ohlcv.length - 1].timestamp + periodMs;
 
 			if (program.verbose) log(`Fetched ${ohlcv.length} records`);
 
@@ -101,6 +101,10 @@ export default async (exchange, opts: Options) => {
 			await sleep(2000); // must sleep to avoid get rate limited on SOME EXCHANGES (check exchange API docs).
 		}
 		// empty console log clears writes the next output to stdout to a new line.
+		readline.cursorTo(process.stdout, 0);
+		process.stdout.write(
+			`[${gray(timestamp("HH:mm:ss"))}] 0 records left to fetch...`
+		);
 		console.log();
 
 		const dbUrl = "mongodb://localhost:27017";
@@ -124,15 +128,16 @@ export default async (exchange, opts: Options) => {
 			docName = `backfill-${docCount + 1}`;
 		}
 
-		await backfillCollection.insertOne({
+		const toBeInserted = {
 			name: docName,
-			period,
-			pair,
-			since,
-			until,
+			period: period,
+			pair: pair,
+			since: since,
+			until: until,
 			records: allTrades
-		});
+		};
 
+		await backfillCollection.insertOne(toBeInserted);
 		log(`Wrote ${allTrades.length} records to ${docName}`);
 		client.close();
 		process.exit(0);

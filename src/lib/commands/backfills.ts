@@ -1,9 +1,14 @@
 import { MongoClient } from "mongodb";
 import log from "fancy-log";
+import { log as logger } from "../../utils/index";
 import chalk from "chalk";
+import inquirer from "inquirer";
 import { bail } from "../../utils/index";
-import { ListOptions } from "../../types/interfaces/commands";
+import { ListOptions, DeleteOptions } from "../../types/interfaces/commands";
 
+const { error, success, info, warn } = logger;
+
+// Utility functions
 const connect = async () => {
 	try {
 		const dbUrl = "mongodb://localhost:27017";
@@ -27,7 +32,10 @@ const connect = async () => {
 
 // Format metadata for console.table
 function BackfillRow(data) {
-	const format = (num: number) => new Date(num).toLocaleString();
+	function format(str: string) {
+		const num = parseInt(str, 10);
+		return new Date(num).toLocaleString();
+	}
 	const { name, period, pair, since, until } = data;
 	this.document_name = name;
 	this.period = period;
@@ -36,10 +44,32 @@ function BackfillRow(data) {
 	this["until (formatted)"] = format(until);
 }
 
+const confirmDangerous = async (documentsAffected?: number) => {
+	try {
+		const question = [
+			{
+				type: "confirm",
+				name: "proceedDangerous",
+				message: `The following operation affects ${documentsAffected} ${
+					documentsAffected > 1 ? "documents" : "document"
+				} and is destructive. Continue?`,
+				default: false
+			}
+		];
+		const answer = await inquirer.prompt(question);
+
+		return answer;
+	} catch (err) {
+		bail(err);
+	}
+};
+
+// End utility functions
+
 const listOne = async (documentName: string, options: ListOptions) => {
 	try {
 		const { client, backfillCollection } = await connect();
-		const { pretty, verbose } = options;
+		const { pretty } = options;
 		const oneBackfill = await backfillCollection
 			.find({ name: documentName })
 			.toArray();
@@ -66,12 +96,12 @@ const listOne = async (documentName: string, options: ListOptions) => {
 
 const listAll = async (options: ListOptions) => {
 	try {
-		const { pretty, verbose } = options;
+		const { pretty } = options;
 		const { client, backfillCollection } = await connect();
 		const allBackfills = backfillCollection.find({});
 		const backfillsArr = await allBackfills.toArray();
 
-		if (backfillsArr.length > 0) {
+		if (backfillsArr.length) {
 			let allDocs = [];
 
 			backfillsArr.forEach((doc) => {
@@ -97,11 +127,53 @@ const listAll = async (options: ListOptions) => {
 	}
 };
 
-const deleteAll = async (pretty?: boolean) => {
+const deleteAll = async (options: DeleteOptions) => {
 	try {
 		const { client, backfillCollection } = await connect();
+		const { verbose } = options;
+		const allBackfills = backfillCollection.find({});
+		const backfillsArr = await allBackfills.toArray();
+		const { length } = backfillsArr;
+		if (length) {
+			const proceed = await confirmDangerous(length);
+			if (proceed) {
+				await backfillCollection.drop();
+				success(
+					`Deleted ${length} ${
+						length > 1 ? "documents" : "document"
+					} from the database.`
+				);
+			} else {
+				bail(`Bailed out of deleting ${length} documents`);
+			}
+		}
 
-		await backfillCollection.drop();
+		await client.close();
+	} catch (err) {
+		bail(err);
+	}
+};
+
+const deleteOne = async (documentName: string, options: DeleteOptions) => {
+	try {
+		const { client, backfillCollection } = await connect();
+		const { verbose } = options;
+		const allBackfills = backfillCollection.find({ name: documentName });
+		const backfillsArr = await allBackfills.toArray();
+		const { length } = backfillsArr;
+		if (length) {
+			const proceed = await confirmDangerous(length);
+			if (proceed) {
+				await backfillCollection.deleteOne({ name: documentName });
+				success(`Deleted document ${documentName} from the database.`);
+			} else {
+				bail(`Bailed out of deleting document ${documentName}`);
+			}
+		} else {
+			bail(`No documents name ${documentName}.`);
+		}
+
+		await client.close();
 	} catch (err) {
 		bail(err);
 	}
@@ -109,7 +181,9 @@ const deleteAll = async (pretty?: boolean) => {
 
 const backfills = {
 	listOne,
-	listAll
+	listAll,
+	deleteAll,
+	deleteOne
 };
 
 export default backfills;
