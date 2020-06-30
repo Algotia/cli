@@ -35,7 +35,11 @@ export default (options) => {
 
 		return newConf;
 	} else {
-		log.warn(`Using default configuration.`);
+		log.warn(
+			`Using default configuration. Only ${chalk.underline.bold(
+				"public API methods"
+			)} will be available.`
+		);
 		log.info(
 			`Please create your own configuration file at ${chalk.bold.underline(
 				process.env["NODE_CONFIG_DIR"] + "default.yaml"
