@@ -2,6 +2,7 @@ import { boot, backfill } from "@algotia/core";
 import { getConfig } from "./utils/index";
 import program from "commander";
 import createCli from "./lib/createCli";
+import log from "fancy-log";
 
 (async () => {
 	try {
@@ -21,6 +22,6 @@ import createCli from "./lib/createCli";
 		const bootData = await boot(config, bootOptions);
 		createCli(bootData);
 	} catch (err) {
-		console.log(err);
+		log.error(err);
 	}
 })();

@@ -25,8 +25,9 @@ export default (options) => {
 		const formatPath = (path) => path.replace(os.homedir(), "~");
 		const configPath = formatPath(configSourceArr[0].name);
 
-		if (options.verbose)
+		if (options.verbose) {
 			log.info(`Config detected -- using ${chalk.underline.bold(configPath)}`);
+		}
 
 		const userConfig = configSourceArr[0].parsed;
 		const newConf = config.util.extendDeep(configDefaults, userConfig);

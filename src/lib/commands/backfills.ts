@@ -46,7 +46,7 @@ const listOne = async (documentName: string, pretty?: boolean) => {
 			if (pretty) {
 				console.table([new BackfillRow(oneBackfill[0])]);
 			} else {
-				console.log(oneBackfill[0]);
+				log(oneBackfill[0]);
 			}
 		} else {
 			log.error(
@@ -77,10 +77,10 @@ const listAll = async (pretty?: boolean) => {
 			if (pretty) {
 				console.table(allDocs);
 			} else {
-				console.log(allDocs);
+				log(allDocs);
 			}
 		} else {
-			console.log(
+			log(
 				`No backfills saved. Run ${chalk.bold.underline(
 					"algotia backfill -h"
 				)} for help.`

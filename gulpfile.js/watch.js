@@ -22,26 +22,22 @@ module.exports = function watchTS(cb) {
 	const watcher = watch([globToWatch]);
 
 	watcher.on("change", function (inPath) {
-		try {
-			const outPath = pathNoFile(inPath);
+		const outPath = pathNoFile(inPath);
 
-			info(`Compiling ${inPath} --> ${outPath}`);
+		info(`Compiling ${inPath} --> ${outPath}`);
 
-			let transpileError = false;
-			src(inPath)
-				.pipe(tsProject(ts.reporter.longReporter()))
-				.on("error", (err) => {
-					transpileError = true;
-					console.log(err);
-					error("Error transpiling TypeScript");
-				})
-				.pipe(dest(outPath))
-				.on("end", (obj) => {
-					if (!transpileError) success("Transpiled TypeScript successfully");
-				});
-		} catch (error) {
-			console.log("ERRORED OUT --- ");
-		}
+		let transpileError = false;
+		src(inPath)
+			.pipe(tsProject(ts.reporter.longReporter()))
+			.on("error", (err) => {
+				transpileError = true;
+				error(err);
+				error("Error transpiling TypeScript");
+			})
+			.pipe(dest(outPath))
+			.on("end", (obj) => {
+				if (!transpileError) success("Transpiled TypeScript successfully");
+			});
 	});
 
 	watcher.on("ready", () => {

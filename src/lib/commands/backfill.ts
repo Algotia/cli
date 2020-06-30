@@ -100,6 +100,7 @@ export default async (exchange, opts: Options) => {
 			// we should know what the rate limit of each exchange is.
 			await sleep(2000); // must sleep to avoid get rate limited on SOME EXCHANGES (check exchange API docs).
 		}
+		// empty console log clears writes the next output to stdout to a new line.
 		console.log();
 
 		const dbUrl = "mongodb://localhost:27017";

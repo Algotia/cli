@@ -1,17 +1,29 @@
 name: Build and Test
 
 on:
-  push
+  push:
+    branches:
+      - master
+    pull_request:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-
     - name: Setup Node.js environment
       uses: actions/setup-node@v1.4.2
-    - run: rm -rf node_modules/
-    - run: npm install
-    - run: npm run build
-    - run: npm run test
+      with:
+        registry-url: 'https://registry.npmjs.org'
+        scope: 'algotia'
+    - name: Install dependencies
+      run: npm ci
+    - name: Build
+      run: npm run build
+    - name: Run tests
+      run: npm t
+    - name: Publish to NPM
+      run: npm publish
+      env: 
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
