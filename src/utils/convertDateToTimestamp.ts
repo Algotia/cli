@@ -6,7 +6,7 @@ import { format, parseISO } from "date-fns";
 // finally, it tries tries to parse a unix timestamp
 
 // should probably create an interface for this
-const convert = (input: any) => {
+const convert = (input: string) => {
 	const unixString = new Date(parseInt(input));
 	const dateString = new Date(input);
 	const isoString = parseISO(input);
@@ -20,8 +20,9 @@ const convert = (input: any) => {
 	} else if (unixString.valueOf()) {
 		parsedInput = unixString;
 	}
+	const formatted = format(parsedInput, "T");
 
-	return format(parsedInput, "T");
+	return formatted;
 };
 
 export default convert;

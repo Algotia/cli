@@ -1,20 +1,22 @@
 import chalk from "chalk";
 import log from "fancy-log";
 
-const info = (text: any) => {
-	log(chalk.yellow.bold("INFO: "), ...text);
+type T = any;
+
+const info = (text: T) => {
+	log.info(chalk.yellow.bold("INFO: "), text);
 };
 
-const error = (text: any) => {
-	log.error(chalk.red.bold("ERROR: "), ...text);
+const error = (text: T) => {
+	log.error(chalk.red.bold("ERROR: "), text);
 };
 
-const warn = (text: any) => {
-	log.warn(chalk.yellow.bold("WARNING: "), ...text);
+const warn = (text: T) => {
+	log.warn(chalk.yellow.bold("WARNING: "), text);
 };
 
-const success = (text: any) => {
-	log(chalk.green.bold("SUCCESS: "), ...text);
+const success = (text: T) => {
+	log(chalk.green.bold("SUCCESS: "), text);
 };
 
 export default {
