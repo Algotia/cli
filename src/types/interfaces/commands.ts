@@ -1,6 +1,9 @@
 interface ListOptions {
 	pretty?: boolean;
+}
+
+interface DeleteOptions {
 	verbose?: boolean;
 }
 
-export { ListOptions };
+export { ListOptions, DeleteOptions };
