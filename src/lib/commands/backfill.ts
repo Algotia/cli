@@ -5,7 +5,7 @@ import log from "fancy-log";
 import gray from "ansi-gray";
 import timestamp from "time-stamp";
 
-import { convertTimeFrame } from "../../utils/index";
+import { convertTimeFrame, sleep } from "../../utils/index";
 
 //TODO: Probably should split some of these utility functions out as they will be useful in a bunch of other modules.
 
@@ -36,8 +36,6 @@ const reshape = (arr: OHLCV[]) =>
 		close: ohlcv[4],
 		volume: ohlcv[5]
 	}));
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)); // This is a sync function that WILL block the main thread, might want to do something else instead
 
 export default async (exchange, opts: Options) => {
 	try {

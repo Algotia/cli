@@ -4,7 +4,7 @@ import { log as logger } from "../../utils/index";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { bail } from "../../utils/index";
-import { ListOptions, DeleteOptions } from "../../types/interfaces/commands";
+import { ListOptions, DeleteOptions } from "../../types/commands";
 
 const { error, success, info, warn } = logger;
 
@@ -137,6 +137,10 @@ const deleteAll = async (options: DeleteOptions) => {
 		if (length) {
 			const proceed = await confirmDangerous(length);
 			if (proceed) {
+				info("Deleting the following documents:");
+				backfillsArr.forEach((doc) => {
+					console.log("     " + doc.name);
+				});
 				await backfillCollection.drop();
 				success(
 					`Deleted ${length} ${
@@ -158,12 +162,13 @@ const deleteOne = async (documentName: string, options: DeleteOptions) => {
 	try {
 		const { client, backfillCollection } = await connect();
 		const { verbose } = options;
-		const allBackfills = backfillCollection.find({ name: documentName });
-		const backfillsArr = await allBackfills.toArray();
+		const oneBackfill = backfillCollection.find({ name: documentName });
+		const backfillsArr = await oneBackfill.toArray();
 		const { length } = backfillsArr;
 		if (length) {
 			const proceed = await confirmDangerous(length);
 			if (proceed) {
+				if (verbose) info(`Deleting ${documentName}`);
 				await backfillCollection.deleteOne({ name: documentName });
 				success(`Deleted document ${documentName} from the database.`);
 			} else {
