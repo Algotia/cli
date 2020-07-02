@@ -1,7 +1,8 @@
 import { convertDateToTimestamp } from "../utils/index";
 import backfillCommand from "./commands/backfill";
 import backfillsCommand from "./commands/backfills";
-import { ListOptions, DeleteOptions } from "../types/interfaces/commands";
+import listPairsCommand from "./commands/list-pairs";
+import { ListOptions, DeleteOptions } from "../types/commands";
 import { program } from "commander";
 import { bail } from "../utils/index";
 const packageJson = require("../../package.json");
@@ -77,11 +78,11 @@ export default (bootData) => {
 		});
 
 	// Output of algotia -h should be backfills [command] but is not.
-	const backfill = program
+	const backfills = program
 		.command("backfills <command>")
 		.description("Read, update, and delete backfill documents");
 
-	backfill
+	backfills
 		.command("list [documentName]")
 		.description(
 			"Print backfill document(s), when called with no arguments, will print all documents (metadata only)."
@@ -103,7 +104,7 @@ export default (bootData) => {
 			}
 		});
 
-	backfill
+	backfills
 		.command("delete [documentName]")
 		.description(
 			"Deletes document(s), if no name passed then deletes all documents."
@@ -122,6 +123,17 @@ export default (bootData) => {
 			} catch (err) {
 				bail(err);
 			}
+		});
+
+	program
+		.command("list-pairs")
+		.description(
+			"Lists all the valid trading pairs from the exchange in your configuration."
+		)
+		.option("-a, --all", "Print tickers with all information", false)
+		.action((options) => {
+			console.log("opts - ", options.all);
+			listPairsCommand(exchange, options.all);
 		});
 
 	program.parse(process.argv);
