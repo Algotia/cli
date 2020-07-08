@@ -1,12 +1,10 @@
 name: Build and Test
 
 on:
-  push:
+  pull_request:
     branches:
-      - development 
-    pull_request:
+      - master
       - development
-
 jobs:
   build:
     runs-on: ubuntu-latest
