@@ -1,20 +1,18 @@
+import { Exchange } from "ccxt";
 import log from "fancy-log";
-import { bail, sleep, log as logs } from "../../utils/index";
+import { sleep, log as logs } from "../../utils/index";
 
 const { info } = logs;
 
-export default async (exchange, all?: boolean) => {
+export default async (exchange: Exchange, verbose?: boolean): Promise<void> => {
 	try {
-		info(
-			`The list-pairs method is strictly rate-limited. Sleeping to prevent API key flagging.`
-		);
-		await sleep(1000, true);
-
-		if (all) {
-			const tickers = await exchange.fetchTickers();
-			log(tickers);
-			return;
+		if (verbose) {
+			info(
+				`The list-pairs method is strictly rate-limited. Sleeping to prevent API key flagging.`
+			);
 		}
+		await sleep(1000, verbose);
+
 		const allTickers = await exchange.fetchTickers();
 		let tickerArr = [];
 		for (let ticker in allTickers) {
@@ -25,6 +23,6 @@ export default async (exchange, all?: boolean) => {
 			log(ticker);
 		});
 	} catch (err) {
-		bail(err);
+		return Promise.reject(new Error(err));
 	}
 };

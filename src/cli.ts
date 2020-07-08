@@ -1,4 +1,4 @@
-import { boot, backfill } from "@algotia/core";
+import { boot, BootOptions } from "@algotia/core";
 import { getConfig } from "./utils/index";
 import program from "commander";
 import createCli from "./lib/createCli";
@@ -15,10 +15,9 @@ import log from "fancy-log";
 			verbose: program.verbose
 		});
 
-		const bootOptions = {
+		const bootOptions: BootOptions = {
 			verbose: program.verbose
 		};
-
 		const bootData = await boot(config, bootOptions);
 		createCli(bootData);
 	} catch (err) {

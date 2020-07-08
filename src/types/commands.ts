@@ -6,4 +6,13 @@ interface DeleteOptions {
 	verbose?: boolean;
 }
 
-export { ListOptions, DeleteOptions };
+interface BackfillOptions {
+	since: number;
+	pair: string;
+	period: string;
+	until: number;
+	limit: number;
+	documentName: string;
+}
+
+export { ListOptions, DeleteOptions, BackfillOptions };
