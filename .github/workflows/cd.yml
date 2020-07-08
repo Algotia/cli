@@ -1,9 +1,8 @@
 name: CD
 
 on:
-  pull_request:
-    branches:
-      - master
+  release:
+    types: [published]
 
 jobs:
   build:
