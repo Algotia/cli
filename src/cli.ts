@@ -9,9 +9,12 @@ import log from "fancy-log";
 		// Register the initial options
 		program
 			.option("-v, --verbose", "verbose output")
-			.option("-c, --config <config>");
+			.option("-c, --config <config>", "Path to configuration file");
 
-		const config = getConfig({
+		program.parse(process.argv);
+
+		const config = await getConfig({
+			configPath: program.config,
 			verbose: program.verbose
 		});
 
