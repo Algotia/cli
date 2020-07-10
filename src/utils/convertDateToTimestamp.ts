@@ -2,24 +2,23 @@
 // first tries to convert a JavaScript Date
 // then tries a unix timestamp
 
-// should probably create an interface for this
-const convert = (input: any) => {
-	const unixString = new Date(Number(input));
-	const dateString = new Date(input);
+export default (input: string | number): number => {
+	const numFromInput = Number(input);
 
-	let formatted: Date;
+	let dateString: Date;
 
-	if (dateString.valueOf()) {
-		formatted = dateString;
-	} else if (unixString.valueOf()) {
-		formatted = unixString;
+	if (Object.is(NaN, numFromInput)) {
+		// Input is not a number
+		dateString = new Date(input);
+	} else {
+		// Input is number
+		dateString = new Date(numFromInput);
 	}
 
-	const utcString = formatted.toUTCString();
-
-	const parsedInput = Date.parse(utcString);
-
-	return parsedInput;
+	if (Object.is(NaN, dateString.valueOf())) {
+		// Invalid Date
+		return 0;
+	} else {
+		return dateString.getTime();
+	}
 };
-
-export default convert;
