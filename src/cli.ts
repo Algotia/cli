@@ -12,10 +12,12 @@ import log from "fancy-log";
 			.option("-c, --config <config>", "Path to configuration file");
 
 		program.parse(process.argv);
-		const config = getConfig({
+
+		const config = await getConfig({
 			configPath: program.config,
 			verbose: program.verbose
 		});
+
 		const bootOptions: BootOptions = {
 			verbose: program.verbose
 		};

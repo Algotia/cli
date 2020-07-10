@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import YAML from "yaml";
 
+import createConfigWizard from "../lib/createConfigWizard";
 import log from "../utils/logs";
 
 process.env["SUPPRESS_NO_CONFIG_WARNING"] = "true";
@@ -16,7 +17,7 @@ interface GetConfigOptions {
 	verbose?: boolean;
 }
 
-const getDefaultConfig = (verbose: boolean): ConfigOptions => {
+const getDefaultConfig = async (verbose: boolean): Promise<ConfigOptions> => {
 	const configSourceArr = config.util.getConfigSources();
 
 	if (configSourceArr.length) {
@@ -32,16 +33,8 @@ const getDefaultConfig = (verbose: boolean): ConfigOptions => {
 
 		return userConfig;
 	} else {
-		log.warn(
-			`Using default configuration. Only ${chalk.underline.bold(
-				"public API methods"
-			)} will be available.`
-		);
-		log.info(
-			`Please create your own configuration file at ${chalk.bold.underline(
-				process.env["NODE_CONFIG_DIR"] + "default.yaml"
-			)}`
-		);
+		log.warn("No defailt configuration found.");
+		return await createConfigWizard();
 	}
 };
 
@@ -81,10 +74,10 @@ const getCustomConfig = (options: GetConfigOptions): ConfigOptions => {
 	return userConfig;
 };
 
-export default (options: GetConfigOptions): ConfigOptions => {
-	if (path) {
+export default async (options: GetConfigOptions): Promise<ConfigOptions> => {
+	if (options.configPath) {
 		return getCustomConfig(options);
 	} else {
-		return getDefaultConfig(options.verbose);
+		return await getDefaultConfig(options.verbose);
 	}
 };
