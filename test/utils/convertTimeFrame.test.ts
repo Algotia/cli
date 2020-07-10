@@ -6,8 +6,8 @@ test("Convert time frame", () => {
 		expects: { unit, amount }
 	});
 
-	const timeframes = [create("15m", "minute", 15), create("1m", "minute", 1)];
-	timeframes.forEach((frame) => {
+	const cases = [create("15m", "minute", 15), create("1m", "minute", 1)];
+	cases.forEach((frame) => {
 		expect(convertTimeFrame(frame.case)).toStrictEqual(frame.expects);
 	});
 });

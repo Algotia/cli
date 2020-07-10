@@ -1,9 +1,11 @@
 import {
 	backfill as backfillCommand,
-	backfills as backfillsCommand
+	backfills as backfillsCommand,
+	BackfillOptions,
+	ListOptions,
+	DeleteOptions
 } from "@algotia/core";
 import listPairsCommand from "./commands/list-pairs";
-import { ListOptions, DeleteOptions } from "../types/commands";
 import { program } from "commander";
 import { confirmDangerous, bail } from "../utils/index";
 const packageJson = require("../../package.json");
@@ -13,7 +15,7 @@ const pInt = (str: string) => parseInt(str, 10);
 
 // should create an interface for this
 export default (bootData) => {
-	const { exchange } = bootData;
+	const { exchange, config } = bootData;
 	program.version(packageJson.version);
 
 	program
@@ -47,7 +49,7 @@ export default (bootData) => {
 				const { verbose } = program;
 				const { since, pair, period, until, limit, documentName } = options;
 
-				const opts = {
+				const opts: BackfillOptions = {
 					sinceInput: since,
 					untilInput: until,
 					pair,
