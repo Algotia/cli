@@ -18,7 +18,7 @@ jobs:
     - name: Run tests
       run: npm t
     - name: Archive build artifacts
-      uses: @actions/upload-artifact@v2
+      uses: actions/upload-artifact@v1
       with:
         name: dist
         path: dist/
