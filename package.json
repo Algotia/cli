@@ -1,6 +1,6 @@
 {
   "name": "@algotia/cli",
-  "version": "0.0.3-23",
+  "version": "0.0.3-31",
   "description": "",
   "bin": {
     "algotia": "./algotia-cli.js"
