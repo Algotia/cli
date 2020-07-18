@@ -4,7 +4,10 @@ import { sleep, log as logs } from "../../utils/index";
 
 const { info } = logs;
 
-export default async (exchange: Exchange, verbose?: boolean): Promise<void> => {
+export default async (
+	exchange: Exchange,
+	verbose?: boolean
+): Promise<string[]> => {
 	try {
 		if (verbose) {
 			info(
@@ -19,9 +22,7 @@ export default async (exchange: Exchange, verbose?: boolean): Promise<void> => {
 			tickerArr.push(ticker);
 		}
 		tickerArr.sort();
-		tickerArr.forEach((ticker) => {
-			log(ticker);
-		});
+		return tickerArr;
 	} catch (err) {
 		return Promise.reject(new Error(err));
 	}
