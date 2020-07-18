@@ -1,27 +1,27 @@
-import { boot, BootOptions } from "@algotia/core";
-import { getConfig } from "./utils/index";
-import program from "commander";
-import createCli from "./lib/createCli";
+import { boot, BootOptions, ConfigOptions } from "@algotia/core";
+import yargs from "yargs-parser";
 import log from "fancy-log";
+import { getConfig } from "./utils/index";
+import createCli from "./lib/createCli";
 
 (async () => {
 	try {
-		// Register the initial options
-		program
-			.option("-v, --verbose", "verbose output")
-			.option("-c, --config <config>", "Path to configuration file");
+		const argv = yargs(process.argv.slice(1));
 
-		program.parse(process.argv);
+		const configPath = argv.config || argv.c || false;
+		const verbose = argv.verbose || argv.v || false;
 
-		const config = await getConfig({
-			configPath: program.config,
-			verbose: program.verbose
+		const userConfig: ConfigOptions = await getConfig({
+			configPath,
+			verbose
 		});
 
 		const bootOptions: BootOptions = {
-			verbose: program.verbose
+			verbose
 		};
-		const bootData = await boot(config, bootOptions);
+
+		const bootData = await boot(userConfig, bootOptions);
+
 		createCli(bootData);
 	} catch (err) {
 		log.error(err);

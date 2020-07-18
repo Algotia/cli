@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import YAML from "yaml";
 
-import createConfigWizard from "../lib/createConfigWizard";
+import createConfigWizard from "../lib/wizards/createConfigWizard";
 import log from "../utils/logs";
 
 process.env["SUPPRESS_NO_CONFIG_WARNING"] = "true";

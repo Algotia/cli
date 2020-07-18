@@ -1,61 +1,104 @@
 import {
 	backfill as backfillCommand,
 	backfills as backfillsCommand,
+	backtest as backtestCommand,
+	// Types
+	BacktestOtions,
 	BackfillOptions,
 	ListOptions,
-	DeleteOptions
+	DeleteOptions,
+	ConfigOptions
 } from "@algotia/core";
-import listPairsCommand from "./commands/list-pairs";
+import { Exchange } from "ccxt";
+import path from "path";
 import { program } from "commander";
-import { confirmDangerous, bail } from "../utils/index";
+
+import listPairsCommand from "./commands/list-pairs";
+import backfillWizard from "./wizards/backfillWizard";
+import { confirmDangerous, bail, log } from "../utils/index";
+
 const packageJson = require("../../package.json");
 
 // argument parsers
 const pInt = (str: string) => parseInt(str, 10);
 
 // should create an interface for this
-export default (bootData) => {
+interface BootData {
+	exchange: Exchange;
+	config: ConfigOptions;
+}
+export default async (bootData: BootData) => {
 	const { exchange, config } = bootData;
+  
 	program.version(packageJson.version);
 
+	// global
+	program
+		.option("-v, --verbose", "verbose output")
+		.option("-c, --config <config>", "Path to configuration file");
+
+	// list-pairs
+	program
+		.command("list-pairs")
+		.description(
+			"Lists all the valid trading pairs from the exchange in your configuration."
+		)
+		.option("-v, --verbose")
+		.action(async (options) => {
+			try {
+				const pairsArr = await listPairsCommand(exchange, options.verbose);
+				pairsArr.forEach((pair) => {
+					log.info(pair);
+				});
+			} catch (err) {
+				return Promise.reject(err);
+			}
+		});
+
+	// backfill
 	program
 		.command("backfill")
 		.description("backfill historical data")
-		.requiredOption(
+		.option(
 			"-s, --since <since>",
 			"Unix timestamp (ms) of time to retrieve records from"
 		)
-		.requiredOption("-p, --pair <pair>", "Pair to retrieve records for")
-		.option("-P, --period <period>", "Timeframe to retrieve records for", "1m")
+		.option("-p, --pair <pair>", "Pair to retrieve records for")
+		.option("-P, --period <period>", "Timeframe to retrieve records for")
 		.option(
 			"-u, --until <until>",
-			"Unix timestamp (ms) of time to retrieve records to",
+			"Unix timestamp (ms) of time to retrieve records to"
 			// default argument is server time in MS
-			exchange.milliseconds()
 		)
 		.option(
 			"-l, --limit <limit>",
 			"Number of records to retrieve at one time",
-			pInt,
-			100
+			pInt
 		)
-		.option(
-			"-n, --document-name <documentName>",
-			"name for database refrence",
-			undefined
-		)
+		.option("-n, --document-name <documentName>", "name for database refrence")
 		.action(async (options) => {
 			try {
 				const { verbose } = program;
 				const { since, pair, period, until, limit, documentName } = options;
-
-				const opts: BackfillOptions = {
-					sinceInput: since,
-					untilInput: until,
+        
+				const wizardOptions = {
+					since,
+					until,
 					pair,
 					period,
-					recordLimit: limit,
-					documentName: documentName,
+					limit,
+					documentName
+				};
+
+				const wizardAnswers = await backfillWizard(wizardOptions, exchange);
+
+				const opts: BackfillOptions = {
+					sinceInput: since || wizardAnswers.since,
+					untilInput: until || wizardAnswers.until,
+					pair: pair || wizardAnswers.pair,
+					period: period || wizardAnswers.period,
+					recordLimit: limit || wizardAnswers.limit,
+					documentName: documentName || wizardAnswers.documentName,
 					verbose: verbose
 				};
 
@@ -65,11 +108,12 @@ export default (bootData) => {
 			}
 		});
 
-	// Output of algotia -h should be backfills [command] but is not.
+	// backfills <command>
 	const backfills = program
 		.command("backfills <command>")
 		.description("Read, update, and delete backfill documents");
 
+	// backfills list
 	backfills
 		.command("list [documentName]")
 		.description(
@@ -92,6 +136,7 @@ export default (bootData) => {
 			}
 		});
 
+	// backfills delete
 	backfills
 		.command("delete [documentName]")
 		.description(
@@ -119,14 +164,28 @@ export default (bootData) => {
 			}
 		});
 
+	// backtest
 	program
-		.command("list-pairs")
-		.description(
-			"Lists all the valid trading pairs from the exchange in your configuration."
-		)
-		.option("-v, --verbose")
-		.action((options) => {
-			listPairsCommand(exchange, options.verbose);
+		.command("backtest")
+		.description("Test strategies against historical data")
+		.requiredOption("-s, --strategy <strategy>", "Path to strategy file.")
+		.requiredOption("-d, --data-set <dataSet>", "Name of backfillto use.")
+		.action(async (options) => {
+			try {
+				const { strategy, dataSet } = options;
+				const resolvedStrategy = await require(path.join(
+					process.cwd(),
+					strategy
+				));
+
+				const backtestOptions: BacktestOtions = {
+					strategy: resolvedStrategy,
+					dataSet
+				};
+				await backtestCommand(backtestOptions);
+			} catch (err) {
+				return Promise.reject(new Error(err));
+			}
 		});
 
 	program.parse(process.argv);
