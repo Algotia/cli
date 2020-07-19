@@ -4,6 +4,7 @@ import { Exchange } from "ccxt";
 import { BackfillOptions } from "../../types/commands";
 import { getQuestionsToAsk } from "../../utils/index";
 
+
 export default async (
 	opts: BackfillOptions,
 	exchange: Exchange
