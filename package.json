@@ -38,6 +38,7 @@
     "inquirer": "^7.2.0",
     "inquirer-autocomplete-prompt": "^1.0.2",
     "inquirer-datepicker": "^2.0.0",
+    "inquirer-fuzzy-path": "^2.3.0",
     "jest": "^26.1.0",
     "js-yaml": "^3.14.0",
     "mongodb": "^3.5.9",
