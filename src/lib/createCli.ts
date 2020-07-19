@@ -29,7 +29,7 @@ interface BootData {
 }
 export default async (bootData: BootData) => {
 	const { exchange, config } = bootData;
-
+  
 	program.version(packageJson.version);
 
 	// global
@@ -80,6 +80,7 @@ export default async (bootData: BootData) => {
 			try {
 				const { verbose } = program;
 				const { since, pair, period, until, limit, documentName } = options;
+        
 				const wizardOptions = {
 					since,
 					until,
