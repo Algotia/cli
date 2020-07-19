@@ -2,6 +2,8 @@ import inquirer from "inquirer";
 import fuzzy from "fuzzy";
 import { Exchange } from "ccxt";
 import { BackfillOptions } from "../../types/commands";
+import { getQuestionsToAsk } from "../../utils/index";
+
 
 export default async (
 	opts: BackfillOptions,
@@ -68,11 +70,7 @@ export default async (
 		};
 
 		// If user passed command line arg for a value, don't ask a question for it.
-		let quetionsToAsk = [];
-		let keys = Object.keys(opts);
-		keys.forEach((key) => {
-			if (!opts[key]) quetionsToAsk.push(questionsObj[key]);
-		});
+		const quetionsToAsk = getQuestionsToAsk(opts, questionsObj);
 
 		const answers: BackfillOptions = await inquirer.prompt(quetionsToAsk);
 

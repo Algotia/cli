@@ -5,6 +5,8 @@ import getConfig from "./getConfig";
 import log from "./logs";
 import sleep from "./sleep";
 import confirmDangerous from "./confirmDangerous";
+import getQuestionsToAsk from "./wizards/getQuestionsToAsk";
+import connectToDb from "./db/connectToDb";
 
 export {
 	bail,
@@ -13,5 +15,7 @@ export {
 	convertDateToTimestamp,
 	getConfig,
 	log,
-	sleep
+	sleep,
+	getQuestionsToAsk,
+	connectToDb
 };

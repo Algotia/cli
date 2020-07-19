@@ -14,7 +14,7 @@ import path from "path";
 import { program } from "commander";
 
 import listPairsCommand from "./commands/list-pairs";
-import backfillWizard from "./wizards/backfillWizard";
+import { backfillWizard, backtestWizard } from "./wizards/index";
 import { confirmDangerous, bail, log } from "../utils/index";
 
 const packageJson = require("../../package.json");
@@ -168,21 +168,23 @@ export default async (bootData: BootData) => {
 	program
 		.command("backtest")
 		.description("Test strategies against historical data")
-		.requiredOption("-s, --strategy <strategy>", "Path to strategy file.")
-		.requiredOption("-d, --data-set <dataSet>", "Name of backfillto use.")
+		.option("-s, --strategy <strategy>", "Path to strategy file.")
+		.option("-d, --data-set <dataSet>", "Name of backfillto use.")
 		.action(async (options) => {
 			try {
 				const { strategy, dataSet } = options;
-				const resolvedStrategy = await require(path.join(
-					process.cwd(),
-					strategy
-				));
-
-				const backtestOptions: BacktestOtions = {
-					strategy: resolvedStrategy,
+				const wizardOptions = {
+					strategy,
 					dataSet
 				};
-				await backtestCommand(backtestOptions);
+
+				const wizardAnswers = await backtestWizard(wizardOptions);
+
+				const backtestOptions: BacktestOtions = {
+					strategy: strategy || wizardAnswers.strategy,
+					dataSet: dataSet || wizardAnswers.dataSet
+				};
+				return await backtestCommand(backtestOptions);
 			} catch (err) {
 				return Promise.reject(new Error(err));
 			}
