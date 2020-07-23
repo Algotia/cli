@@ -1,7 +1,6 @@
 import camelcase from "camelcase";
-import { CommanderStatic } from "commander";
 import { BootData } from "@algotia/core";
-import { Wizard, CommandOptions, CommandArgs } from "../../types";
+import { CommandArgs } from "../../types";
 
 const createCommand = (commandArgs: CommandArgs, noVerbose?: boolean) => {
 	const { program, bootData, wizard } = commandArgs;
@@ -15,7 +14,9 @@ const createCommand = (commandArgs: CommandArgs, noVerbose?: boolean) => {
 	};
 	const addOptions = (optionsArr?: string[][]) => {
 		if (!calledAddCommad) {
-			throw "Cannot call add options without calling addCommand first";
+			throw new Error(
+				"Cannot call add options without calling addCommand first"
+			);
 		}
 		if (optionsArr) {
 			optionsArr.forEach((option) => {
@@ -31,7 +32,9 @@ const createCommand = (commandArgs: CommandArgs, noVerbose?: boolean) => {
 		action: (bootData: BootData, options: any) => Promise<any>
 	) => {
 		if (!calledAddCommad) {
-			throw "Cannot call add options without calling addCommand first";
+			throw new Error(
+				"Cannot call add options without calling addCommand first"
+			);
 		}
 		command.action(async (parameterOrOptions?: any, options?: any) => {
 			let userPassedOptions = {};

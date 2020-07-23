@@ -47,7 +47,7 @@ const backfillWizard = async (bootData: BootData, answersGiven) => {
 				type: "list",
 				name: "period",
 				message: "Which period would you like to fetch data for?",
-				choices: Object.values(exchange.timeframes),
+				choices: Object.keys(exchange.timeframes),
 				filter: periodFilter
 			},
 			pair: {

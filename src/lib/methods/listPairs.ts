@@ -17,13 +17,17 @@ const listPairs = async (bootData: BootData, options: any): Promise<void> => {
 		const allTickers = await exchange.fetchTickers();
 		let tickerArr = [];
 		for (let ticker in allTickers) {
-			tickerArr.push(ticker);
+			if (allTickers.hasOwnProperty(ticker)) {
+				tickerArr.push(ticker);
+			}
 		}
 		tickerArr.sort();
 
 		return tickerArr.forEach((t) => log.info(t));
 	} catch (err) {
 		return Promise.reject(new Error(err));
+	} finally {
+		await bootData.client.close();
 	}
 };
 
