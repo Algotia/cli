@@ -1,4 +1,7 @@
-export default (optionsGiven: Object, possibleQuestions: Object): any[] => {
+const getQuestionsToAsk = (
+	optionsGiven: Object,
+	possibleQuestions: Object
+): any[] => {
 	let quetionsToAsk = [];
 	let keys = Object.keys(optionsGiven);
 	keys.forEach((key) => {
@@ -6,3 +9,5 @@ export default (optionsGiven: Object, possibleQuestions: Object): any[] => {
 	});
 	return quetionsToAsk;
 };
+
+export default getQuestionsToAsk;

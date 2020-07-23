@@ -1,28 +1,23 @@
-import inquirer from "inquirer";
 import fuzzy from "fuzzy";
-import { Exchange } from "ccxt";
-import { BackfillOptions } from "../../types/commands";
-import { getQuestionsToAsk } from "../../utils/index";
+import createWizard from "../factories/createWizard";
+import { log } from "../../utils";
+import { BootData } from "@algotia/core";
 
-
-export default async (
-	opts: BackfillOptions,
-	exchange: Exchange
-): Promise<BackfillOptions> => {
+const backfillWizard = async (bootData: BootData, answersGiven) => {
 	try {
-		// Register inquirer plugins
-		inquirer.registerPrompt("datepicker", await require("inquirer-datepicker"));
-		inquirer.registerPrompt(
-			"autocomplete",
-			await require("inquirer-autocomplete-prompt")
-		);
+		const { exchange } = bootData;
 
-		// Get variables for questions
 		const tickers = await exchange.fetchTickers();
 		const allTickers = [];
 		for (let ticker in tickers) {
 			allTickers.push(ticker);
 		}
+
+		// filter
+		const periodFilter = async (period: string | number) => {
+			const str = period.toString();
+			return str.toLowerCase();
+		};
 
 		// Search functions
 		const searchPairs = async (answers, input) => {
@@ -37,21 +32,23 @@ export default async (
 				type: "datepicker",
 				name: "since",
 				message: "Select the date you would like to backfill from:",
-				format: ["Y", "/", "MM", "/", "DD", " ", "HH", ":", "mm", ":", "ss"]
+				format: ["yyyy", "/", "mm", "/", "dd", " ", "HH", ":", "MM", ":", "ss"],
+				inital: new Date().toJSON()
 			},
 			until: {
 				type: "datepicker",
 				name: "until",
 				message:
 					"Select the date you would like to backfill until: \n Default is current exchange time.",
-				format: ["Y", "/", "MM", "/", "DD", " ", "HH", ":", "mm", ":", "ss"],
-				default: new Date(Number(exchange.milliseconds().toString(10)))
+				format: ["yyyy", "/", "mm", "/", "dd", " ", "HH", ":", "MM", ":", "ss"],
+				default: new Date(Number(exchange.milliseconds().toString(10))).toJSON()
 			},
 			period: {
 				type: "list",
 				name: "period",
 				message: "Which period would you like to fetch data for?",
-				choices: Object.values(exchange.timeframes)
+				choices: Object.keys(exchange.timeframes),
+				filter: periodFilter
 			},
 			pair: {
 				type: "autocomplete",
@@ -59,23 +56,24 @@ export default async (
 				message: "Which pair would you like to fetch data for: ",
 				source: searchPairs
 			},
-			limit: {
+			recordLimit: {
 				type: "input",
-				name: "limit"
+				name: "recordLimit",
+				message: "What is the record limit you would like to set?"
 			},
 			documentName: {
 				type: "input",
-				name: "documentName"
+				name: "documentName",
+				message: "Would you like to name this backfill?"
 			}
 		};
 
-		// If user passed command line arg for a value, don't ask a question for it.
-		const quetionsToAsk = getQuestionsToAsk(opts, questionsObj);
+		const wizard = createWizard(answersGiven, questionsObj);
 
-		const answers: BackfillOptions = await inquirer.prompt(quetionsToAsk);
-
-		return answers;
+		return wizard;
 	} catch (err) {
-		return Promise.reject(err);
+		log.error(err);
 	}
 };
+
+export default backfillWizard;

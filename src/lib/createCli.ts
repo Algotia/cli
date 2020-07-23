@@ -1,168 +1,48 @@
-import {
-	backfill as backfillCommand,
-	backfills as backfillsCommand,
-	backtest as backtestCommand,
-	// Types
-	BacktestOtions,
-	BackfillOptions,
-	ListOptions,
-	DeleteOptions,
-	ConfigOptions
-} from "@algotia/core";
-import { Exchange } from "ccxt";
-import path from "path";
+import { boot, ConfigOptions, BootData } from "@algotia/core";
 import { program } from "commander";
-
-import listPairsCommand from "./commands/list-pairs";
-import { backfillWizard, backtestWizard } from "./wizards/index";
-import { confirmDangerous, bail, log } from "../utils/index";
+import { log } from "../utils";
+import { CommandArr, CommandArgs } from "../types";
 
 const packageJson = require("../../package.json");
 
-// argument parsers
-const pInt = (str: string) => parseInt(str, 10);
+const registerCommands = (arr: CommandArr, program, bootData) => {
+	arr.forEach(async (commandObj) => {
+		try {
+			const { command, wizard } = commandObj;
+			const commandArgs: CommandArgs = {
+				program,
+				bootData,
+				wizard
+			};
 
-// should create an interface for this
-interface BootData {
-	exchange: Exchange;
-	config: ConfigOptions;
-}
-export default async (bootData: BootData) => {
-	const { exchange, config } = bootData;
-  
-	program.version(packageJson.version);
+			await command(commandArgs);
+		} catch (err) {
+			log.error(err);
+		}
+	});
+};
 
-	// global
-	program
-		.option("-v, --verbose", "verbose output")
-		.option("-c, --config <config>", "Path to configuration file");
+const createCli = async (
+	config: ConfigOptions,
+	commandArr: CommandArr
+): Promise<void> => {
+	try {
+		// Set CLI version to package.json version
+		program.version(packageJson.version);
 
-	// list-pairs
-	program
-		.command("list-pairs")
-		.description(
-			"Lists all the valid trading pairs from the exchange in your configuration."
-		)
-		.option("-v, --verbose")
-		.action(async (options) => {
-			try {
-				const pairsArr = await listPairsCommand(exchange, options.verbose);
-				pairsArr.forEach((pair) => {
-					log.info(pair);
-				});
-			} catch (err) {
-				return Promise.reject(err);
-			}
-		});
+		const bootData: BootData = await boot(config);
+		registerCommands(commandArr, program, bootData);
 
-	// backfill
-	program
-		.command("backfill")
-		.description("backfill historical data")
-		.option(
-			"-s, --since <since>",
-			"Unix timestamp (ms) of time to retrieve records from"
-		)
-		.option("-p, --pair <pair>", "Pair to retrieve records for")
-		.option("-P, --period <period>", "Timeframe to retrieve records for")
-		.option(
-			"-u, --until <until>",
-			"Unix timestamp (ms) of time to retrieve records to"
-			// default argument is server time in MS
-		)
-		.option(
-			"-l, --limit <limit>",
-			"Number of records to retrieve at one time",
-			pInt
-		)
-		.option("-n, --document-name <documentName>", "name for database refrence")
-		.action(async (options) => {
-			try {
-				const { verbose } = program;
-				const { since, pair, period, until, limit, documentName } = options;
-        
-				const wizardOptions = {
-					since,
-					until,
-					pair,
-					period,
-					limit,
-					documentName
-				};
+		program.parse(process.argv);
+	} catch (err) {
+		log.error(err);
+	}
+};
 
-				const wizardAnswers = await backfillWizard(wizardOptions, exchange);
+export default createCli;
 
-				const opts: BackfillOptions = {
-					sinceInput: since || wizardAnswers.since,
-					untilInput: until || wizardAnswers.until,
-					pair: pair || wizardAnswers.pair,
-					period: period || wizardAnswers.period,
-					recordLimit: limit || wizardAnswers.limit,
-					documentName: documentName || wizardAnswers.documentName,
-					verbose: verbose
-				};
+/*
 
-				await backfillCommand(exchange, opts);
-			} catch (err) {
-				return Promise.reject(new Error(err));
-			}
-		});
-
-	// backfills <command>
-	const backfills = program
-		.command("backfills <command>")
-		.description("Read, update, and delete backfill documents");
-
-	// backfills list
-	backfills
-		.command("list [documentName]")
-		.description(
-			"Print backfill document(s), when called with no arguments, will print all documents (metadata only)."
-		)
-		.option("-p, --pretty", "Print (only) metadata in a pretty table", false)
-		.action(async (documentName, options) => {
-			try {
-				const { pretty } = options;
-				const backfillsOptions: ListOptions = {
-					pretty
-				};
-				if (documentName) {
-					await backfillsCommand.listOne(documentName, backfillsOptions);
-				} else {
-					await backfillsCommand.listAll(backfillsOptions);
-				}
-			} catch (err) {
-				return Promise.reject(new Error(err));
-			}
-		});
-
-	// backfills delete
-	backfills
-		.command("delete [documentName]")
-		.description(
-			"Deletes document(s), if no name passed then deletes all documents."
-		)
-		.action(async (documentName, options) => {
-			try {
-				const { verbose } = options;
-				const deleteOptions: DeleteOptions = {
-					verbose
-				};
-
-				const proceed = await confirmDangerous();
-				if (proceed) {
-					if (documentName) {
-						await backfillsCommand.deleteOne(documentName, deleteOptions);
-					} else {
-						await backfillsCommand.deleteAll(deleteOptions);
-					}
-				} else {
-					bail("Bailing out of deleting all documents.");
-				}
-			} catch (err) {
-				return Promise.reject(new Error(err));
-			}
-		});
 
 	// backtest
 	program
@@ -192,3 +72,4 @@ export default async (bootData: BootData) => {
 
 	program.parse(process.argv);
 };
+*/

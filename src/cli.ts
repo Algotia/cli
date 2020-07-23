@@ -1,28 +1,31 @@
-import { boot, BootOptions, ConfigOptions } from "@algotia/core";
-import yargs from "yargs-parser";
-import log from "fancy-log";
-import { getConfig } from "./utils/index";
+import { getConfig, log } from "./utils/index";
 import createCli from "./lib/createCli";
+import { backfill, backtest, backfills, listPairs } from "./lib/commands";
+import { backfillWizard, backtestWizard, backfillsWizard } from "./lib/wizards";
+import { CommandArr, ConfigOptions } from "./types";
 
 (async () => {
 	try {
-		const argv = yargs(process.argv.slice(1));
+		const commands: CommandArr = [
+			{
+				command: backfill,
+				wizard: backfillWizard
+			},
+			{
+				command: backtest,
+				wizard: backtestWizard
+			},
+			{
+				command: backfills,
+				wizard: backfillsWizard
+			},
+			{
+				command: listPairs
+			}
+		];
+		const userConfig: ConfigOptions = await getConfig();
 
-		const configPath = argv.config || argv.c || false;
-		const verbose = argv.verbose || argv.v || false;
-
-		const userConfig: ConfigOptions = await getConfig({
-			configPath,
-			verbose
-		});
-
-		const bootOptions: BootOptions = {
-			verbose
-		};
-
-		const bootData = await boot(userConfig, bootOptions);
-
-		createCli(bootData);
+		await createCli(userConfig, commands);
 	} catch (err) {
 		log.error(err);
 	}

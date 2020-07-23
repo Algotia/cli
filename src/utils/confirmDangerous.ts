@@ -1,6 +1,6 @@
-import inquirer from "inquirer";
+import inquirer, { Answers } from "inquirer";
 
-export default async (documentsAffected?: number) => {
+export default async (documentsAffected?: number): Promise<boolean> => {
 	try {
 		let mes: string;
 		if (documentsAffected) {
@@ -18,9 +18,9 @@ export default async (documentsAffected?: number) => {
 				default: false
 			}
 		];
-		const answer = await inquirer.prompt(question);
+		const answer: Answers = await inquirer.prompt(question);
 
-		return answer;
+		return answer.proceedDangerous;
 	} catch (err) {
 		return Promise.reject(new Error(err));
 	}

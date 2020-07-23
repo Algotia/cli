@@ -2,6 +2,7 @@ import inquirer from "inquirer";
 import fs from "fs";
 import YAML from "yaml";
 import { ConfigOptions } from "@algotia/core";
+import { log } from "../../utils";
 
 export default async (): Promise<ConfigOptions> => {
 	try {
@@ -47,6 +48,13 @@ export default async (): Promise<ConfigOptions> => {
 
 		const answers: Answers = await inquirer.prompt(questions);
 
+		if (!answers.config.exchange.apiKey) {
+			answers.config.exchange.apiKey = "Enter API key";
+		}
+		if (!answers.config.exchange.apiSecret) {
+			answers.config.exchange.apiSecret = "Enter API secret";
+		}
+
 		const { config } = answers;
 
 		const fileExtension = `default.${answers.fileExtension}`;
@@ -66,9 +74,13 @@ export default async (): Promise<ConfigOptions> => {
 				configString = YAML.stringify(config);
 		}
 
+		if (!fs.existsSync(configDir)) {
+			fs.mkdirSync(configDir);
+		}
 		fs.writeFileSync(writePath, configString);
 
-		console.log(config);
+		log.success(`Created configuration file at ${writePath}`);
+
 		return config;
 	} catch (err) {
 		return Promise.reject(err);
