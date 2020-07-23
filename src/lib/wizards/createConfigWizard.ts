@@ -68,7 +68,6 @@ export default async (): Promise<ConfigOptions> => {
 
 		fs.writeFileSync(writePath, configString);
 
-		console.log(config);
 		return config;
 	} catch (err) {
 		return Promise.reject(err);

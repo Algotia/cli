@@ -5,7 +5,6 @@ import path from "path";
 import fs from "fs";
 import YAML from "yaml";
 
-
 import { createConfigWizard } from "../lib/wizards/index";
 import log from "../utils/logs";
 
@@ -18,18 +17,10 @@ interface GetConfigOptions {
 	verbose?: boolean;
 }
 
-const getDefaultConfig = async (verbose: boolean): Promise<ConfigOptions> => {
+const getDefaultConfig = async (): Promise<ConfigOptions> => {
 	const configSourceArr = config.util.getConfigSources();
 
 	if (configSourceArr.length) {
-		const formatPath = (path: string): string =>
-			path.replace(os.homedir(), "~");
-		const configPath = formatPath(configSourceArr[0].name);
-
-		if (verbose) {
-			log.info(`Config detected -- using ${chalk.underline.bold(configPath)}`);
-		}
-
 		const userConfig = configSourceArr[0].parsed;
 
 		return userConfig;
@@ -39,6 +30,7 @@ const getDefaultConfig = async (verbose: boolean): Promise<ConfigOptions> => {
 	}
 };
 
+/*
 const getCustomConfig = (options: GetConfigOptions): ConfigOptions => {
 	const { configPath, verbose } = options;
 	const allowedFileExtensions = ["js", "json", "yaml", "yml"];
@@ -75,10 +67,11 @@ const getCustomConfig = (options: GetConfigOptions): ConfigOptions => {
 	return userConfig;
 };
 
-export default async (options: GetConfigOptions): Promise<ConfigOptions> => {
-	if (options.configPath) {
-		return getCustomConfig(options);
-	} else {
-		return await getDefaultConfig(options.verbose);
-	}
+*/
+
+export default async (): Promise<ConfigOptions> => {
+	//if (options.configPath) {
+	//return getCustomConfig(options);
+	//}
+	return await getDefaultConfig();
 };
