@@ -1,6 +1,11 @@
 import backfillWizard from "./backfillWizard";
-import backfillsWizard from "./backfillsWizard";
+import listBackfillsWizard from "./listBackfillsWizard";
 import backtestWizard from "./backtestWizard";
 import createConfigWizard from "./createConfigWizard";
 
-export { backfillWizard, backfillsWizard, backtestWizard, createConfigWizard };
+export {
+	backfillWizard,
+	listBackfillsWizard,
+	backtestWizard,
+	createConfigWizard
+};

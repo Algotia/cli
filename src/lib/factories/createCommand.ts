@@ -1,11 +1,12 @@
 import camelcase from "camelcase";
 import { BootData } from "@algotia/core";
-import { CommandArgs } from "../../types";
+import { CommandArgs, Wizard } from "../../types";
 
-const createCommand = (commandArgs: CommandArgs, noVerbose?: boolean) => {
-	const { program, bootData, wizard } = commandArgs;
+const createCommand = (commandArgs: CommandArgs) => {
+	const { program, bootData } = commandArgs;
 	let calledAddCommad = false;
 	let command;
+	let wizard;
 
 	const addCommand = (title: string, description: string) => {
 		calledAddCommad = true;
@@ -23,9 +24,10 @@ const createCommand = (commandArgs: CommandArgs, noVerbose?: boolean) => {
 				command.option(option[0], option[1], undefined, option[2]);
 			});
 		}
-		if (!noVerbose) {
-			command.option("-v, --verbose", "verbose output");
-		}
+	};
+
+	const addWizard = (wizardToBeAdded: Wizard) => {
+		wizard = wizardToBeAdded;
 	};
 
 	const addAction = async (
@@ -39,8 +41,8 @@ const createCommand = (commandArgs: CommandArgs, noVerbose?: boolean) => {
 		command.action(async (parameterOrOptions?: any, options?: any) => {
 			let userPassedOptions = {};
 
-			const registerOptions = ({ options }) => {
-				options.forEach(async (opt) => {
+			const registerOptions = (options) => {
+				options.options.forEach(async (opt) => {
 					let optionName = camelcase(opt.long);
 					userPassedOptions[optionName] = options[optionName];
 				});
@@ -57,6 +59,7 @@ const createCommand = (commandArgs: CommandArgs, noVerbose?: boolean) => {
 			} else {
 				registerOptions(parameterOrOptions);
 			}
+
 			if (wizard) {
 				const wizardAnswers = await wizard(bootData, userPassedOptions);
 				await action(bootData, wizardAnswers);
@@ -69,6 +72,7 @@ const createCommand = (commandArgs: CommandArgs, noVerbose?: boolean) => {
 	return {
 		addCommand,
 		addOptions,
+		addWizard,
 		addAction
 	};
 };

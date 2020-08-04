@@ -3,7 +3,7 @@ import commander from "commander";
 import { log } from "../../utils";
 import { CommandArr, CommandArgs } from "../../types";
 
-const packageJson = require("../../package.json");
+const packageJson = require("../../../package.json");
 
 const createCli = async (config: ConfigOptions, commandArr: CommandArr) => {
 	try {
@@ -11,13 +11,11 @@ const createCli = async (config: ConfigOptions, commandArr: CommandArr) => {
 		const { program } = commander;
 
 		const registerCommands = () => {
-			commandArr.forEach(async (commandObj) => {
+			commandArr.forEach(async (command) => {
 				try {
-					const { command, wizard } = commandObj;
 					const commandArgs: CommandArgs = {
 						bootData,
-						program,
-						wizard
+						program
 					};
 					await command(commandArgs);
 				} catch (err) {

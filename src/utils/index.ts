@@ -5,6 +5,11 @@ import log from "./logs";
 import sleep from "./sleep";
 import confirmDangerous from "./confirmDangerous";
 import getQuestionsToAsk from "./wizards/getQuestionsToAsk";
+import {
+	connectToDb,
+	getBackfillCollection,
+	connectAndGetBackfillCollection
+} from "./db/";
 
 export {
 	confirmDangerous,
@@ -13,5 +18,8 @@ export {
 	getConfig,
 	log,
 	sleep,
-	getQuestionsToAsk
+	getQuestionsToAsk,
+	connectToDb,
+	getBackfillCollection,
+	connectAndGetBackfillCollection
 };

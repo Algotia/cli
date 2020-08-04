@@ -3,6 +3,8 @@ import createCommand from "../factories/createCommand";
 import { backfill } from "@algotia/core";
 import { CommandOptions, Command } from "../../types";
 
+import { backfillWizard } from "../wizards/";
+
 const backfillCommand: Command = async (commandArgs): Promise<void> => {
 	try {
 		const command = createCommand(commandArgs);
@@ -24,11 +26,13 @@ const backfillCommand: Command = async (commandArgs): Promise<void> => {
 				"-l, --record-limit <recordLimit>",
 				"Number of records to retrieve at one time"
 			],
-			["-n, --document-name <documentName>", "name for database refrence"]
+			["-n, --document-name <documentName>", "name for database refrence"],
+			["-v, --verbose", "verbose output"]
 		];
 
 		command.addCommand("backfill", "backfill historical data");
 		command.addOptions(options);
+		command.addWizard(backfillWizard);
 		await command.addAction(backfill);
 	} catch (err) {
 		log.error(err);

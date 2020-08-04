@@ -1,17 +1,27 @@
 import fuzzy from "fuzzy";
 import createWizard from "../factories/createWizard";
-import { log } from "../../utils";
+import { log, connectAndGetBackfillCollection } from "../../utils";
 import { BootData } from "@algotia/core";
+import { Collection } from "mongodb";
 
-const backfillWizard = async (bootData: BootData, answersGiven) => {
+const backfillWizard = async (bootData: BootData, answersGiven: Object) => {
 	try {
 		const { exchange } = bootData;
 
+		const backfillCollection = await connectAndGetBackfillCollection(bootData);
+
 		const tickers = await exchange.fetchTickers();
-		const allTickers = [];
-		for (let ticker in tickers) {
-			allTickers.push(ticker);
-		}
+		const allTickers = Object.keys(tickers);
+
+		const getDefaultDocumentName = async (backfillCollection: Collection) => {
+			const backfillCount = await backfillCollection.countDocuments();
+
+			return `backfill-${backfillCount + 1}`;
+		};
+
+		const defaultDocumentName = await getDefaultDocumentName(
+			backfillCollection
+		);
 
 		// filter
 		const periodFilter = async (period: string | number) => {
@@ -20,12 +30,27 @@ const backfillWizard = async (bootData: BootData, answersGiven) => {
 		};
 
 		// Search functions
-		const searchPairs = async (answers, input) => {
+		const searchPairs = async (answers: any, input: string) => {
+			console.log(answers);
 			input = input || "";
 			let fuzzyRes = fuzzy.filter(input, allTickers);
 			return fuzzyRes.map((el) => el.original);
 		};
 
+		// validators
+
+		const validateDocumentName = async (input: string | number) => {
+			const backfillExists = await backfillCollection.findOne({ name: input });
+
+			if (backfillExists)
+				return `Backfill named ${input} already exists in the database.`;
+			return true;
+		};
+
+		const validateRecordLimit = (input: any) => {
+			if (typeof Number(input) === "number") return true;
+			return "Record limit must be a number";
+		};
 		// Object of possible questions to ask
 		const questionsObj = {
 			since: {
@@ -59,12 +84,23 @@ const backfillWizard = async (bootData: BootData, answersGiven) => {
 			recordLimit: {
 				type: "input",
 				name: "recordLimit",
-				message: "What is the record limit you would like to set?"
+				message: "What is the record limit you would like to set?",
+				// TODO: change default to a dynamic value -- should be set in CCXT
+				// wrapper (core package)
+				default: 10000,
+				validate: validateRecordLimit
 			},
 			documentName: {
 				type: "input",
 				name: "documentName",
-				message: "Would you like to name this backfill?"
+				message: "Would you like to name this backfill?",
+				validate: validateDocumentName,
+				default: defaultDocumentName
+			},
+			verbose: {
+				type: "confirm",
+				name: "verbose",
+				message: "Would you like verbose output?"
 			}
 		};
 

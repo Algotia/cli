@@ -7,34 +7,11 @@ const createWizard = async (
 	possibleQuestions: PossibleQuestionns
 ) => {
 	try {
-		const addVerboseQuestion = (
-			possibleQuestions: PossibleQuestionns
-		): PossibleQuestionns => {
-			const verboseQuestion: ListQuestion = {
-				type: "list",
-				name: "verbose",
-				message: "Would you like verbose or quiet output?",
-				choices: [
-					{
-						name: "verbose",
-						value: true
-					},
-					{
-						name: "quiet",
-						value: false
-					}
-				]
-			};
-
-			possibleQuestions["verbose"] = verboseQuestion;
-
-			return possibleQuestions;
-		};
-
 		const checkForPlugins = async (questionsThatWillBeAsked: any[]) => {
 			try {
 				//TODO: Could get this from packageJson inquirer-*
 				const plugins = {
+					filetree: "inquirer-file-tree-selection-prompt",
 					fuzzypath: "inquirer-fuzzy-path",
 					datepicker: "inquirer-datepicker-prompt",
 					autocomplete: "inquirer-autocomplete-prompt"
@@ -56,10 +33,11 @@ const createWizard = async (
 		};
 		const askQuestions = async (): Promise<Answers> => {
 			try {
-				const allQuestions = addVerboseQuestion(possibleQuestions);
-
 				// If user passed command line arg for a value, don't ask a question for it.
-				const questionsToAsk = getQuestionsToAsk(answersGiven, allQuestions);
+				const questionsToAsk = getQuestionsToAsk(
+					answersGiven,
+					possibleQuestions
+				);
 
 				await checkForPlugins(questionsToAsk);
 
