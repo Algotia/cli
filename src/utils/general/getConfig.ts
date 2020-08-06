@@ -2,8 +2,8 @@ import { ConfigOptions } from "@algotia/core";
 import os from "os";
 import path from "path";
 
-import { createConfigWizard } from "../lib/wizards/index";
-import log from "../utils/logs";
+import { configWizard } from "../../lib/wizards/";
+import log from "./log";
 
 process.env["SUPPRESS_NO_CONFIG_WARNING"] = "true";
 process.env["NODE_CONFIG_DIR"] = path.join(os.homedir(), "/algotia/");
@@ -19,7 +19,7 @@ const getDefaultConfig = async (): Promise<ConfigOptions> => {
 	} else {
 		log.warn("No defailt configuration found.");
 		log.info("Starting coniguration wizard");
-		return createConfigWizard();
+		return configWizard();
 	}
 };
 

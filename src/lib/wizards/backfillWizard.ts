@@ -31,7 +31,6 @@ const backfillWizard = async (bootData: BootData, answersGiven: Object) => {
 
 		// Search functions
 		const searchPairs = async (answers: any, input: string) => {
-			console.log(answers);
 			input = input || "";
 			let fuzzyRes = fuzzy.filter(input, allTickers);
 			return fuzzyRes.map((el) => el.original);

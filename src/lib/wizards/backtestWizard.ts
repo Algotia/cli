@@ -20,11 +20,7 @@ const backtestWizard = async (bootData: BootData, answersGiven: Answers) => {
 			let fuzzyRes = fuzzy.filter(input, backfillNames);
 			return fuzzyRes.map((el) => el.original);
 		};
-		const withCurrentDir = (nodePath: string) => {
-			const cwdLength = process.cwd().length + 1;
-			const sliced = nodePath.slice(cwdLength);
-			return sliced;
-		};
+
 		const questionsObj: PossibleQuestionns = {
 			dataSet: {
 				type: "autocomplete",
@@ -37,18 +33,17 @@ const backtestWizard = async (bootData: BootData, answersGiven: Answers) => {
 				type: "fuzzypath",
 				name: "strategy",
 				rootPath: process.cwd(),
-				//excludeFilter: (nodePath: string) =>
-				//nodePath.startsWith("node_modules" || "."),
-				excludePath: (nodePath: string) => {
-					console.log(withCurrentDir(".git"));
-					//return nodePath.startsWith(withCurrentDir(".git/"));
-				},
+				excludeFilter: (nodePath: string) =>
+					nodePath
+						.slice(process.cwd().length + 1)
+						.startsWith("node_modules" || "."),
 				filter: async (strategyPath: string) => {
-					try {
-						const strat = await import(path.join(process.cwd(), strategyPath));
-						return strat.default;
-					} catch (err) {
-						log.error(err);
+					const req = require("esm")(module);
+					const strategy = req(path.resolve(strategyPath));
+					if (strategy.default) {
+						return strategy.default;
+					} else {
+						return strategy;
 					}
 				},
 				itemType: "file",

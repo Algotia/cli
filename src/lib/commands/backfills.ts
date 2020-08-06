@@ -8,7 +8,6 @@ import {
 import { createCommand } from "../factories";
 import { Command, CommandArgs } from "../../types";
 import { listBackfillsWizard } from "../wizards";
-import asciichart from "asciichart";
 
 const connectGetBackfillCollection = async (bootData: BootData) => {
 	try {
@@ -64,7 +63,7 @@ const backfillsCommand: Command = async (commandArgs): Promise<void> => {
 			} else {
 				const listUgly = async (bootData, options) => {
 					const backfillArr = await backfills.listBackfills(bootData, options);
-					console.log(backfillArr);
+					log(backfillArr);
 				};
 				return listUgly(bootData, options);
 			}
