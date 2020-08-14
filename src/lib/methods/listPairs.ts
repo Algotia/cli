@@ -9,10 +9,10 @@ const listPairs = async (bootData: BootData, options: any): Promise<void> => {
 		const { exchange } = bootData;
 		if (options.verbose) {
 			info(
-				`The list-pairs method is strictly rate-limited. Sleeping to prevent API key flagging.`
+				`The list-pairs method is rate-limited. Sleeping to prevent API key flagging.`
 			);
 		}
-		await sleep(1000, options.verbose);
+		await sleep(1000);
 
 		const allTickers = await exchange.fetchTickers();
 		let tickerArr = [];

@@ -66,6 +66,7 @@ const createCommand = (commandArgs: CommandArgs) => {
 				await bootData.client.close();
 			} else {
 				await action(bootData, userPassedOptions);
+				await bootData.client.close();
 			}
 		});
 	};
