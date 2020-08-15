@@ -16,7 +16,6 @@ export type Wizard = (
 interface ICommandArgs {
 	program: any;
 	bootData: BootData;
-	wizard?: Wizard;
 }
 export type CommandArgs = ICommandArgs;
 export type Command = (commandArgs: CommandArgs) => Promise<any>;
@@ -27,14 +26,7 @@ interface UserPasssedOptionHash {
 
 export type CommandOptions = string[][];
 
-interface ICommandObj {
-	command: Command;
-	wizard?: Wizard;
-}
-
-type ConmmandObj = ICommandObj;
-
-export type CommandArr = ConmmandObj[];
+export type CommandArr = Command[];
 
 interface IPossibleQuestions {
 	[key: string]: any;

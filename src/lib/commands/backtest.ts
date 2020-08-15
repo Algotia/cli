@@ -2,6 +2,7 @@ import { log } from "../../utils";
 import createCommand from "../factories/createCommand";
 import { backtest } from "@algotia/core";
 import { CommandOptions, Command } from "../../types";
+import { backtestWizard } from "../wizards";
 
 const backfillCommand: Command = async (commandArgs): Promise<void> => {
 	try {
@@ -9,11 +10,13 @@ const backfillCommand: Command = async (commandArgs): Promise<void> => {
 
 		const options: CommandOptions = [
 			["-s, --strategy <strategy>", "Path to strategy file."],
-			["-d, --data-set <dataSet>", "Name of backfillto use."]
+			["-d, --data-set <dataSet>", "Name of backfillto use."],
+			["-v, --verbose", "verbose output"]
 		];
 
 		command.addCommand("backtest", "Test strategies against historical data.");
 		command.addOptions(options);
+		command.addWizard(backtestWizard);
 		await command.addAction(backtest);
 	} catch (err) {
 		log.error(err);

@@ -3,19 +3,19 @@ import fuzzy from "fuzzy";
 import path from "path";
 import { createWizard } from "../factories";
 import { PossibleQuestionns, BootData } from "../../types";
-import { log } from "../../utils";
+import { log, connectAndGetBackfillCollection } from "../../utils";
 
 const backtestWizard = async (bootData: BootData, answersGiven: Answers) => {
 	try {
-		const { db } = bootData;
-
-		const backfillsCursor = db
-			.collection("backfill")
-			.find({}, { projection: { _id: 0 } });
+		const backfillCollection = await connectAndGetBackfillCollection(bootData);
+		const backfillsCursor = backfillCollection.find(
+			{},
+			{ projection: { _id: 0 } }
+		);
 		const backfillsArr = await backfillsCursor.toArray();
 		const backfillNames = backfillsArr.map((fill) => fill.name);
 
-		const searchBackfills = async (answers: string, input: string) => {
+		const searchBackfills = async (answers: Answers, input: string) => {
 			input = input || "";
 			let fuzzyRes = fuzzy.filter(input, backfillNames);
 			return fuzzyRes.map((el) => el.original);
@@ -32,20 +32,20 @@ const backtestWizard = async (bootData: BootData, answersGiven: Answers) => {
 			strategy: {
 				type: "fuzzypath",
 				name: "strategy",
-				excludePath: (nodePath: string) => {
-					if (nodePath.includes("node_modules"))
-						return nodePath.includes("node_modules");
-					if (nodePath.includes(".git")) return nodePath.includes(".git");
-				},
+				rootPath: process.cwd(),
+				excludeFilter: (nodePath: string) =>
+					nodePath
+						.slice(process.cwd().length + 1)
+						.startsWith("node_modules" || "."),
 				filter: async (strategyPath: string) => {
-					try {
-						const strat = await import(path.join(process.cwd(), strategyPath));
-						return strat.default;
-					} catch (err) {
-						log.error(err);
+					const req = require("esm")(module);
+					const strategy = req(path.resolve(strategyPath));
+					if (strategy.default) {
+						return strategy.default;
+					} else {
+						return strategy;
 					}
 				},
-				excludeFilter: (nodePath: string) => nodePath == ".",
 				itemType: "file",
 				message: "Select the path to your strategy: ",
 				suggestOnly: false,

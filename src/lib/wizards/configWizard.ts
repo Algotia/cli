@@ -11,7 +11,7 @@ export default async (): Promise<ConfigOptions> => {
 				type: "list",
 				name: "config.exchange.exchangeId",
 				message: "Which exchange would you like to use?",
-				choices: ["binance", "kraken", "bitfinex", "bittrex"]
+				choices: ["binance", "bitfinex"]
 			},
 			{
 				type: "input",

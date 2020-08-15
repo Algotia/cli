@@ -1,17 +1,18 @@
-import convertTimeFrame from "./convertTimeFrame";
-import convertDateToTimestamp from "./convertDateToTimestamp";
-import getConfig from "./getConfig";
-import log from "./logs";
-import sleep from "./sleep";
-import confirmDangerous from "./confirmDangerous";
-import getQuestionsToAsk from "./wizards/getQuestionsToAsk";
+import { sleep, log, getConfig } from "./general/";
+import { confirmDangerous, getQuestionsToAsk } from "./wizards/";
+import {
+	connectToDb,
+	getBackfillCollection,
+	connectAndGetBackfillCollection
+} from "./db/";
 
 export {
 	confirmDangerous,
-	convertTimeFrame,
-	convertDateToTimestamp,
 	getConfig,
 	log,
 	sleep,
-	getQuestionsToAsk
+	getQuestionsToAsk,
+	connectToDb,
+	getBackfillCollection,
+	connectAndGetBackfillCollection
 };
