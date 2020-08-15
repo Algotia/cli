@@ -1,10 +1,8 @@
-import { connectAndGetBackfillCollection } from "../../../src/utils/db/index";
 import { boot, BootData } from "@algotia/core";
 import { log, connectToDb } from "../../../src/utils";
-import { Collection } from "mongodb";
 
 describe("Connect and return backfill collection", () => {
-	let bootData;
+	let bootData: BootData;
 
 	beforeAll(async () => {
 		bootData = await boot({
