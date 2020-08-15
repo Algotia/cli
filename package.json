@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/Algotia/cli#readme",
   "dependencies": {
-    "@algotia/core": "0.0.3-41",
+    "@algotia/core": "0.0.3-42",
     "@types/jest": "^26.0.3",
     "ansi-gray": "^0.1.1",
     "asciichart": "^1.5.24",

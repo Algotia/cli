@@ -1,6 +1,6 @@
 import { connectAndGetBackfillCollection } from "../../../src/utils/db/index";
 import { boot, BootData } from "@algotia/core";
-import { log } from "../../../src/utils";
+import { log, connectToDb } from "../../../src/utils";
 import { Collection } from "mongodb";
 
 describe("Connect and return backfill collection", () => {
@@ -24,6 +24,8 @@ describe("Connect and return backfill collection", () => {
 	});
 
 	test("Collection name should be backfill", async () => {
+		const db = await connectToDb(bootData.client);
+		const backfillCollection = db.collection("backfill");
 		expect(backfillCollection.collectionName).toStrictEqual("backfill");
 	});
 });
