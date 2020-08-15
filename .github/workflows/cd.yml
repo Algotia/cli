@@ -15,8 +15,6 @@ jobs:
       run: npm ci
     - name: Build
       run: npm run build
-    - name: Run tests
-      run: npm t
     - name: Archive build artifacts
       uses: actions/upload-artifact@v1
       with:
